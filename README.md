@@ -1,0 +1,2 @@
+# cyber-threat-intel
+An end-to-end distributed data pipeline built with Apache Spark and the Medallion Architecture. Ingests NVD, EPSS, and CISA KEV feeds to score cybersecurity vulnerabilities and prioritize threat remediation.
