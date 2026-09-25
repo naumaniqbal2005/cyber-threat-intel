@@ -41,8 +41,9 @@ def fetch_kev(load):
     print(f"Saved {path} ({len(data['vulnerabilities'])} entries)")
 
 
-def fetch_epss(load, max_rows=50_000):
-    r = requests.get(EPSS_URL, headers=HEADERS, timeout=120, allow_redirects=True)
+def fetch_epss(load, max_rows=50_000, date=None):
+    url = EPSS_URL if date is None else f"https://epss.empiricalsecurity.com/epss_scores-{date}.csv.gz"
+    r = requests.get(url, headers=HEADERS, timeout=120, allow_redirects=True)
     r.raise_for_status()
     text = gzip.decompress(r.content).decode("utf-8")
     lines = text.splitlines()
@@ -83,11 +84,12 @@ if __name__ == "__main__":
     ap.add_argument("source", choices=["kev", "epss", "nvd"])
     ap.add_argument("--load", choices=["full", "incremental"], required=True)
     ap.add_argument("--days", type=int, default=2, help="NVD incremental window in days")
+    ap.add_argument("--date", type=str, default=None, help="EPSS: pull a specific historical date (YYYY-MM-DD)")
     a = ap.parse_args()
 
     if a.source == "kev":
         fetch_kev(a.load)
     elif a.source == "epss":
-        fetch_epss(a.load)
+        fetch_epss(a.load, date=a.date)
     else:
         fetch_nvd(a.load, a.days)
