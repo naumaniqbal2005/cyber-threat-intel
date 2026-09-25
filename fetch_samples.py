@@ -41,17 +41,53 @@ def fetch_kev(load):
     print(f"Saved {path} ({len(data['vulnerabilities'])} entries)")
 
 
-def fetch_epss(load, max_rows=50_000, date=None):
+def fetch_epss_full_raw(date=None):
+    """Fetch one full EPSS snapshot as a dict: {cve: (epss, percentile)}"""
     url = EPSS_URL if date is None else f"https://epss.empiricalsecurity.com/epss_scores-{date}.csv.gz"
     r = requests.get(url, headers=HEADERS, timeout=120, allow_redirects=True)
     r.raise_for_status()
     text = gzip.decompress(r.content).decode("utf-8")
     lines = text.splitlines()
-    trimmed = lines[: max_rows + 2]
+    header_line = lines[0]  # comment line, e.g. #model_version:...,score_date:...
+    rows = {}
+    for line in lines[2:]:  # skip comment + header row
+        cve, epss, pct = line.split(",")
+        rows[cve] = (float(epss), float(pct))
+    return rows, header_line
 
-    path = out_path(load, f"epss_{load}_sample.csv")
-    path.write_text("\n".join(trimmed) + "\n")
-    print(f"Saved {path} ({len(trimmed) - 2} rows). First line: {lines[0]}")
+
+def fetch_epss(load, max_rows=50_000, date=None, baseline_date=None):
+    if load == "full":
+        rows, header_line = fetch_epss_full_raw(date)
+        items = list(rows.items())[:max_rows]
+        path = out_path(load, "epss_full_sample.csv")
+        with open(path, "w") as f:
+            f.write(header_line + "\ncve,epss,percentile\n")
+            for cve, (epss, pct) in items:
+                f.write(f"{cve},{epss},{pct}\n")
+        print(f"Saved {path} ({len(items)} rows). First line: {header_line}")
+        return
+
+    # incremental: diff two full snapshots
+    baseline, _ = fetch_epss_full_raw(baseline_date)  
+    current, header_line = fetch_epss_full_raw(date)   
+
+    changed = []
+    for cve, (epss, pct) in current.items():
+        if cve not in baseline:
+            changed.append((cve, epss, pct, "new"))
+        else:
+            old_epss, _ = baseline[cve]
+            if abs(epss - old_epss) > 0:
+                changed.append((cve, epss, pct, "updated"))
+
+    changed = changed[:max_rows]
+    path = out_path(load, "epss_incremental_sample.csv")
+    with open(path, "w") as f:
+        f.write(header_line + "\ncve,epss,percentile,change_type\n")
+        for cve, epss, pct, ctype in changed:
+            f.write(f"{cve},{epss},{pct},{ctype}\n")
+    print(f"Saved {path} ({len(changed)} changed/new rows out of {len(current)} total CVEs)")
 
 
 def fetch_nvd(load, days=2, per_page=500):
@@ -85,11 +121,12 @@ if __name__ == "__main__":
     ap.add_argument("--load", choices=["full", "incremental"], required=True)
     ap.add_argument("--days", type=int, default=2, help="NVD incremental window in days")
     ap.add_argument("--date", type=str, default=None, help="EPSS: pull a specific historical date (YYYY-MM-DD)")
+    ap.add_argument("--baseline-date", type=str, default=None, help="EPSS: the full-load date to diff against")
     a = ap.parse_args()
 
     if a.source == "kev":
         fetch_kev(a.load)
     elif a.source == "epss":
-        fetch_epss(a.load, date=a.date)
+        fetch_epss(a.load, date=a.date, baseline_date=a.baseline_date)
     else:
         fetch_nvd(a.load, a.days)
