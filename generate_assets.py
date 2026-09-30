@@ -27,8 +27,8 @@ INCR_DATE = date(2026, 9, 30)
 # bad  = versions inside a real CVE affected range (NVD vendor/product names)
 # good = version outside every range seen (empty = no fix exists)
 CATALOG = {
-    "web_frontend": {
-        "count": 12, "subnet": "10.10.1", "prefix": "web",
+    "search_frontend": {
+        "count": 12, "subnet": "10.10.1", "prefix": "search",
         "criticality": ["high", "high", "critical", "medium"],
         "products": [
             dict(vendor="remix-run", product="react-router", slug="rrouter", weight=3,

@@ -1,16 +1,16 @@
 asset_id,hostname,ip_address,software_vendor,software_product,software_version,asset_group,environment,business_criticality,owner_email,patch_status,last_patched_date,last_scanned_date
-A-0001,web-rrouter-prod-01.cortexa.internal,10.10.1.11,remix-run,react-router,7.12.0,web_frontend,prod,high,noor.ahmed@cortexa.example,unpatched,2026-07-05,2026-09-29
-A-0002,web-rrouter-prod-02.cortexa.internal,10.10.1.12,remix-run,react-router,6.30.2,web_frontend,prod,medium,sana.javed@cortexa.example,unpatched,2026-06-11,2026-09-29
-A-0003,web-rrouter-staging-03.cortexa.internal,10.10.1.13,remix-run,react-router,7.12.0,web_frontend,staging,critical,hamza.sheikh@cortexa.example,unpatched,2026-05-05,2026-09-29
-A-0004,web-cms-prod-04.cortexa.internal,10.10.1.14,dedecms,DedeCMS,5.7.88,web_frontend,prod,critical,noor.butt@cortexa.example,unpatched,2026-05-01,2026-09-29
-A-0005,web-cms-staging-05.cortexa.internal,10.10.1.15,dedecms,DedeCMS,5.7.88,web_frontend,staging,high,talha.butt@cortexa.example,patch_pending,2026-04-26,2026-09-29
-A-0006,web-cms-staging-06.cortexa.internal,10.10.1.16,dedecms,DedeCMS,5.7.88,web_frontend,staging,high,sana.butt@cortexa.example,unpatched,2026-07-14,2026-09-29
-A-0007,web-cms-dev-07.cortexa.internal,10.10.1.17,dedecms,DedeCMS,5.7.88,web_frontend,dev,critical,hamza.qureshi@cortexa.example,unpatched,2026-04-06,2026-09-29
-A-0008,web-rrouter-staging-08.cortexa.internal,10.10.1.18,remix-run,react-router,7.14.1,web_frontend,staging,high,talha.sheikh@cortexa.example,patched,2026-09-09,2026-09-29
-A-0009,web-rrouter-prod-09.cortexa.internal,10.10.1.19,remix-run,react-router,7.14.1,web_frontend,prod,critical,ayesha.sheikh@cortexa.example,patched,2026-09-07,2026-09-29
-A-0010,web-cms-staging-10.cortexa.internal,10.10.1.20,dedecms,DedeCMS,5.7.88,web_frontend,staging,critical,sana.javed@cortexa.example,unpatched,2026-06-07,2026-09-29
-A-0011,web-rrouter-dev-11.cortexa.internal,10.10.1.21,remix-run,react-router,7.13.1,web_frontend,dev,critical,noor.ahmed@cortexa.example,unpatched,2026-03-16,2026-09-29
-A-0012,web-cms-prod-12.cortexa.internal,10.10.1.22,dedecms,DedeCMS,5.7.88,web_frontend,prod,medium,bilal.khan@cortexa.example,patch_pending,2026-06-26,2026-09-29
+A-0001,search-rrouter-prod-01.cortexa.internal,10.10.1.11,remix-run,react-router,7.12.0,search_frontend,prod,high,noor.ahmed@cortexa.example,unpatched,2026-07-05,2026-09-29
+A-0002,search-rrouter-prod-02.cortexa.internal,10.10.1.12,remix-run,react-router,6.30.2,search_frontend,prod,medium,sana.javed@cortexa.example,unpatched,2026-06-11,2026-09-29
+A-0003,search-rrouter-staging-03.cortexa.internal,10.10.1.13,remix-run,react-router,7.12.0,search_frontend,staging,critical,hamza.sheikh@cortexa.example,unpatched,2026-05-05,2026-09-29
+A-0004,search-cms-prod-04.cortexa.internal,10.10.1.14,dedecms,DedeCMS,5.7.88,search_frontend,prod,critical,noor.butt@cortexa.example,unpatched,2026-05-01,2026-09-29
+A-0005,search-cms-staging-05.cortexa.internal,10.10.1.15,dedecms,DedeCMS,5.7.88,search_frontend,staging,high,talha.butt@cortexa.example,patch_pending,2026-04-26,2026-09-29
+A-0006,search-cms-staging-06.cortexa.internal,10.10.1.16,dedecms,DedeCMS,5.7.88,search_frontend,staging,high,sana.butt@cortexa.example,unpatched,2026-07-14,2026-09-29
+A-0007,search-cms-dev-07.cortexa.internal,10.10.1.17,dedecms,DedeCMS,5.7.88,search_frontend,dev,critical,hamza.qureshi@cortexa.example,unpatched,2026-04-06,2026-09-29
+A-0008,search-rrouter-staging-08.cortexa.internal,10.10.1.18,remix-run,react-router,7.14.1,search_frontend,staging,high,talha.sheikh@cortexa.example,patched,2026-09-09,2026-09-29
+A-0009,search-rrouter-prod-09.cortexa.internal,10.10.1.19,remix-run,react-router,7.14.1,search_frontend,prod,critical,ayesha.sheikh@cortexa.example,patched,2026-09-07,2026-09-29
+A-0010,search-cms-staging-10.cortexa.internal,10.10.1.20,dedecms,DedeCMS,5.7.88,search_frontend,staging,critical,sana.javed@cortexa.example,unpatched,2026-06-07,2026-09-29
+A-0011,search-rrouter-dev-11.cortexa.internal,10.10.1.21,remix-run,react-router,7.13.1,search_frontend,dev,critical,noor.ahmed@cortexa.example,unpatched,2026-03-16,2026-09-29
+A-0012,search-cms-prod-12.cortexa.internal,10.10.1.22,dedecms,DedeCMS,5.7.88,search_frontend,prod,medium,bilal.khan@cortexa.example,patch_pending,2026-06-26,2026-09-29
 A-0013,dp-graphx-prod-01.cortexa.internal,10.20.2.11,AWS,Graph Explorer,3.0.0,data_pipeline,prod,medium,noor.javed@cortexa.example,unpatched,2026-04-24,2026-09-29
 A-0014,dp-aiohttp-dev-02.cortexa.internal,10.20.2.12,aio-libs,aiohttp,3.14.1,data_pipeline,dev,critical,talha.butt@cortexa.example,patched,2026-09-07,2026-09-29
 A-0015,dp-graphx-prod-03.cortexa.internal,10.20.2.13,AWS,Graph Explorer,2.4.0,data_pipeline,prod,high,talha.malik@cortexa.example,unpatched,2026-05-25,2026-09-29
