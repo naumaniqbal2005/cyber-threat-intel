@@ -1,0 +1,51 @@
+asset_id,hostname,ip_address,software_vendor,software_product,software_version,asset_group,environment,business_criticality,owner_email,patch_status,last_patched_date,last_scanned_date
+A-0001,web-rrouter-prod-01.cortexa.internal,10.10.1.11,remix-run,react-router,7.12.0,web_frontend,prod,high,noor.ahmed@cortexa.example,unpatched,2026-07-05,2026-09-29
+A-0002,web-rrouter-prod-02.cortexa.internal,10.10.1.12,remix-run,react-router,6.30.2,web_frontend,prod,medium,sana.javed@cortexa.example,unpatched,2026-06-11,2026-09-29
+A-0003,web-rrouter-staging-03.cortexa.internal,10.10.1.13,remix-run,react-router,7.12.0,web_frontend,staging,critical,hamza.sheikh@cortexa.example,unpatched,2026-05-05,2026-09-29
+A-0004,web-cms-prod-04.cortexa.internal,10.10.1.14,dedecms,DedeCMS,5.7.88,web_frontend,prod,critical,noor.butt@cortexa.example,unpatched,2026-05-01,2026-09-29
+A-0005,web-cms-staging-05.cortexa.internal,10.10.1.15,dedecms,DedeCMS,5.7.88,web_frontend,staging,high,talha.butt@cortexa.example,patch_pending,2026-04-26,2026-09-29
+A-0006,web-cms-staging-06.cortexa.internal,10.10.1.16,dedecms,DedeCMS,5.7.88,web_frontend,staging,high,sana.butt@cortexa.example,unpatched,2026-07-14,2026-09-29
+A-0007,web-cms-dev-07.cortexa.internal,10.10.1.17,dedecms,DedeCMS,5.7.88,web_frontend,dev,critical,hamza.qureshi@cortexa.example,unpatched,2026-04-06,2026-09-29
+A-0008,web-rrouter-staging-08.cortexa.internal,10.10.1.18,remix-run,react-router,7.14.1,web_frontend,staging,high,talha.sheikh@cortexa.example,patched,2026-09-09,2026-09-29
+A-0009,web-rrouter-prod-09.cortexa.internal,10.10.1.19,remix-run,react-router,7.14.1,web_frontend,prod,critical,ayesha.sheikh@cortexa.example,patched,2026-09-07,2026-09-29
+A-0010,web-cms-staging-10.cortexa.internal,10.10.1.20,dedecms,DedeCMS,5.7.88,web_frontend,staging,critical,sana.javed@cortexa.example,unpatched,2026-06-07,2026-09-29
+A-0011,web-rrouter-dev-11.cortexa.internal,10.10.1.21,remix-run,react-router,7.13.1,web_frontend,dev,critical,noor.ahmed@cortexa.example,unpatched,2026-03-16,2026-09-29
+A-0012,web-cms-prod-12.cortexa.internal,10.10.1.22,dedecms,DedeCMS,5.7.88,web_frontend,prod,medium,bilal.khan@cortexa.example,patch_pending,2026-06-26,2026-09-29
+A-0013,dp-graphx-prod-01.cortexa.internal,10.20.2.11,AWS,Graph Explorer,3.0.0,data_pipeline,prod,medium,noor.javed@cortexa.example,unpatched,2026-04-24,2026-09-29
+A-0014,dp-aiohttp-dev-02.cortexa.internal,10.20.2.12,aio-libs,aiohttp,3.14.1,data_pipeline,dev,critical,talha.butt@cortexa.example,patched,2026-09-07,2026-09-29
+A-0015,dp-graphx-prod-03.cortexa.internal,10.20.2.13,AWS,Graph Explorer,2.4.0,data_pipeline,prod,high,talha.malik@cortexa.example,unpatched,2026-05-25,2026-09-29
+A-0016,dp-graphx-prod-04.cortexa.internal,10.20.2.14,AWS,Graph Explorer,2.4.0,data_pipeline,prod,critical,noor.qureshi@cortexa.example,unpatched,2026-06-20,2026-09-29
+A-0017,dp-aiohttp-prod-05.cortexa.internal,10.20.2.15,aio-libs,aiohttp,3.13.2,data_pipeline,prod,critical,bilal.javed@cortexa.example,unpatched,2026-05-31,2026-09-29
+A-0018,dp-graphx-dev-06.cortexa.internal,10.20.2.16,AWS,Graph Explorer,2.4.0,data_pipeline,dev,high,usman.ahmed@cortexa.example,unpatched,2026-04-01,2026-09-29
+A-0019,dp-graphx-dev-07.cortexa.internal,10.20.2.17,AWS,Graph Explorer,3.0.1,data_pipeline,dev,high,zain.qureshi@cortexa.example,patched,2026-09-06,2026-09-29
+A-0020,dp-aiohttp-prod-08.cortexa.internal,10.20.2.18,aio-libs,aiohttp,3.12.15,data_pipeline,prod,high,noor.sheikh@cortexa.example,unpatched,2026-07-26,2026-09-29
+A-0021,dp-aiohttp-staging-09.cortexa.internal,10.20.2.19,aio-libs,aiohttp,3.12.15,data_pipeline,staging,critical,talha.sheikh@cortexa.example,patch_pending,2026-05-08,2026-09-29
+A-0022,dp-aiohttp-prod-10.cortexa.internal,10.20.2.20,aio-libs,aiohttp,3.13.2,data_pipeline,prod,medium,sana.malik@cortexa.example,unpatched,2026-04-01,2026-09-29
+A-0023,dp-aiohttp-prod-11.cortexa.internal,10.20.2.21,aio-libs,aiohttp,3.13.2,data_pipeline,prod,critical,ayesha.ahmed@cortexa.example,patch_pending,2026-07-18,2026-09-29
+A-0024,dp-aiohttp-staging-12.cortexa.internal,10.20.2.22,aio-libs,aiohttp,3.12.15,data_pipeline,staging,high,zain.raza@cortexa.example,unpatched,2026-04-08,2026-09-29
+A-0025,it-whd-prod-01.cortexa.internal,10.30.3.11,SolarWinds,Web Help Desk,2026.2,corporate_it,prod,medium,ayesha.khan@cortexa.example,patched,2026-09-03,2026-09-29
+A-0026,it-wks-dev-02.cortexa.internal,10.30.3.12,Mozilla,Firefox,151.0.3,corporate_it,dev,low,hira.sheikh@cortexa.example,patched,2026-09-15,2026-09-29
+A-0027,it-wks-dev-03.cortexa.internal,10.30.3.13,Mozilla,Firefox,150.0.2,corporate_it,dev,low,usman.ahmed@cortexa.example,patch_pending,2026-05-25,2026-09-29
+A-0028,it-wks-staging-04.cortexa.internal,10.30.3.14,Mozilla,Firefox,151.0.3,corporate_it,staging,medium,usman.sheikh@cortexa.example,patched,2026-09-24,2026-09-29
+A-0029,it-wks-prod-05.cortexa.internal,10.30.3.15,Mozilla,Firefox,151.0.1,corporate_it,prod,medium,ayesha.malik@cortexa.example,unpatched,2026-03-31,2026-09-29
+A-0030,it-wks-prod-06.cortexa.internal,10.30.3.16,Mozilla,Firefox,150.0.2,corporate_it,prod,medium,noor.malik@cortexa.example,unpatched,2026-05-29,2026-09-29
+A-0031,it-whd-prod-07.cortexa.internal,10.30.3.17,SolarWinds,Web Help Desk,2026.1,corporate_it,prod,medium,usman.ahmed@cortexa.example,unpatched,2026-05-12,2026-09-29
+A-0032,it-sso-staging-08.cortexa.internal,10.30.3.18,goauthentik,authentik,2025.12.3,corporate_it,staging,medium,talha.sheikh@cortexa.example,unpatched,2026-07-06,2026-09-29
+A-0033,it-wks-prod-09.cortexa.internal,10.30.3.19,Mozilla,Firefox,150.0.2,corporate_it,prod,high,hamza.javed@cortexa.example,patch_pending,2026-04-28,2026-09-29
+A-0034,it-wks-staging-10.cortexa.internal,10.30.3.20,Mozilla,Firefox,150.0.2,corporate_it,staging,medium,hamza.butt@cortexa.example,unpatched,2026-05-16,2026-09-29
+A-0035,it-sso-prod-11.cortexa.internal,10.30.3.21,goauthentik,authentik,2026.2.1,corporate_it,prod,high,sana.butt@cortexa.example,unpatched,2026-06-08,2026-09-29
+A-0036,it-wks-prod-12.cortexa.internal,10.30.3.22,Mozilla,Firefox,151.0.3,corporate_it,prod,low,usman.khan@cortexa.example,patched,2026-09-26,2026-09-29
+A-0037,it-sso-staging-13.cortexa.internal,10.30.3.23,goauthentik,authentik,2026.2.1,corporate_it,staging,low,talha.khan@cortexa.example,unpatched,2026-04-09,2026-09-29
+A-0038,it-sso-dev-14.cortexa.internal,10.30.3.24,goauthentik,authentik,2026.2.3,corporate_it,dev,medium,maryam.raza@cortexa.example,patched,2026-09-11,2026-09-29
+A-0039,tool-goclaw-prod-01.cortexa.internal,10.40.4.11,nextlevelbuilder,GoClaw,3.11.0,internal_tools,prod,medium,bilal.qureshi@cortexa.example,patch_pending,2026-06-08,2026-09-29
+A-0040,tool-panel-dev-02.cortexa.internal,10.40.4.12,pterodactyl,panel,1.11.9,internal_tools,dev,medium,hamza.ahmed@cortexa.example,patch_pending,2026-06-01,2026-09-29
+A-0041,tool-goclaw-staging-03.cortexa.internal,10.40.4.13,nextlevelbuilder,GoClaw,3.11.2,internal_tools,staging,low,hamza.malik@cortexa.example,patch_pending,2026-05-29,2026-09-29
+A-0042,tool-goclaw-prod-04.cortexa.internal,10.40.4.14,nextlevelbuilder,GoClaw,3.11.0,internal_tools,prod,low,usman.sheikh@cortexa.example,patch_pending,2026-04-05,2026-09-29
+A-0043,tool-goclaw-staging-05.cortexa.internal,10.40.4.15,nextlevelbuilder,GoClaw,3.11.2,internal_tools,staging,low,talha.ahmed@cortexa.example,patch_pending,2026-05-21,2026-09-29
+A-0044,tool-panel-staging-06.cortexa.internal,10.40.4.16,pterodactyl,panel,1.11.9,internal_tools,staging,medium,noor.butt@cortexa.example,unpatched,2026-05-26,2026-09-29
+A-0045,tool-goclaw-prod-07.cortexa.internal,10.40.4.17,nextlevelbuilder,GoClaw,3.11.2,internal_tools,prod,medium,zain.sheikh@cortexa.example,unpatched,2026-03-23,2026-09-29
+A-0046,tool-goclaw-staging-08.cortexa.internal,10.40.4.18,nextlevelbuilder,GoClaw,3.11.3,internal_tools,staging,low,zain.malik@cortexa.example,unpatched,2026-06-11,2026-09-29
+A-0047,tool-panel-dev-09.cortexa.internal,10.40.4.19,pterodactyl,panel,1.11.9,internal_tools,dev,low,zain.qureshi@cortexa.example,patch_pending,2026-05-16,2026-09-29
+A-0048,tool-goclaw-prod-10.cortexa.internal,10.40.4.20,nextlevelbuilder,GoClaw,3.11.2,internal_tools,prod,medium,noor.butt@cortexa.example,unpatched,2026-04-25,2026-09-29
+A-0049,tool-goclaw-staging-11.cortexa.internal,10.40.4.21,nextlevelbuilder,GoClaw,3.11.0,internal_tools,staging,high,hira.javed@cortexa.example,unpatched,2026-05-10,2026-09-29
+A-0050,tool-panel-prod-12.cortexa.internal,10.40.4.22,pterodactyl,panel,1.12.3,internal_tools,prod,medium,usman.qureshi@cortexa.example,patched,2026-09-07,2026-09-29
