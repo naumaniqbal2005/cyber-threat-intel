@@ -42,15 +42,14 @@ def fetch_kev(load):
 
 
 def fetch_epss_full_raw(date=None):
-    """Fetch one full EPSS snapshot as a dict: {cve: (epss, percentile)}"""
     url = EPSS_URL if date is None else f"https://epss.empiricalsecurity.com/epss_scores-{date}.csv.gz"
     r = requests.get(url, headers=HEADERS, timeout=120, allow_redirects=True)
     r.raise_for_status()
     text = gzip.decompress(r.content).decode("utf-8")
     lines = text.splitlines()
-    header_line = lines[0]  # comment line, e.g. #model_version:...,score_date:...
+    header_line = lines[0]
     rows = {}
-    for line in lines[2:]:  # skip comment + header row
+    for line in lines[2:]:
         cve, epss, pct = line.split(",")
         rows[cve] = (float(epss), float(pct))
     return rows, header_line
@@ -68,9 +67,8 @@ def fetch_epss(load, max_rows=50_000, date=None, baseline_date=None):
         print(f"Saved {path} ({len(items)} rows). First line: {header_line}")
         return
 
-    # incremental: diff two full snapshots
-    baseline, _ = fetch_epss_full_raw(baseline_date)  
-    current, header_line = fetch_epss_full_raw(date)   
+    baseline, _ = fetch_epss_full_raw(baseline_date)
+    current, header_line = fetch_epss_full_raw(date)
 
     changed = []
     for cve, (epss, pct) in current.items():
@@ -99,12 +97,18 @@ def fetch_nvd(load, days=2, per_page=500):
         print("Warning: NVD_API_KEY not set (5 requests / 30s limit)")
 
     params = {"resultsPerPage": per_page, "startIndex": 0}
+
+    end = datetime.now(timezone.utc)
+    fmt = "%Y-%m-%dT%H:%M:%S.000"
+
     if load == "incremental":
-        end = datetime.now(timezone.utc)
         start = end - timedelta(days=days)
-        fmt = "%Y-%m-%dT%H:%M:%S.000"
         params["lastModStartDate"] = start.strftime(fmt)
         params["lastModEndDate"] = end.strftime(fmt)
+    else:
+        start = end - timedelta(days=120)
+        params["pubStartDate"] = start.strftime(fmt)
+        params["pubEndDate"] = end.strftime(fmt)
 
     r = requests.get(NVD_URL, headers=headers, params=params, timeout=120)
     r.raise_for_status()
