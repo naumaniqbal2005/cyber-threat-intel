@@ -1,8 +1,0 @@
-asset_id,hostname,ip_address,software_vendor,software_product,software_version,asset_group,environment,business_criticality,owner_email,patch_status,last_patched_date,last_scanned_date,change_type,last_updated
-A-0015,dp-graphx-prod-03.cortexa.internal,10.20.2.13,AWS,Graph Explorer,3.0.1,data_pipeline,prod,high,talha.malik@cortexa.example,patched,2026-09-30,2026-09-30,UPDATE,2026-09-30
-A-0029,it-wks-prod-05.cortexa.internal,10.30.3.15,Mozilla,Firefox,151.0.3,corporate_it,prod,medium,ayesha.malik@cortexa.example,patched,2026-09-30,2026-09-30,UPDATE,2026-09-30
-A-0033,it-wks-prod-09.cortexa.internal,10.30.3.19,Mozilla,Firefox,151.0.3,corporate_it,prod,high,hamza.javed@cortexa.example,patched,2026-09-30,2026-09-30,UPDATE,2026-09-30
-A-0001,search-rrouter-prod-01.cortexa.internal,10.10.1.11,remix-run,react-router,7.13.1,search_frontend,prod,high,noor.ahmed@cortexa.example,unpatched,2026-07-05,2026-09-30,UPDATE,2026-09-30
-A-0051,dp-aiohttp-staging-13.cortexa.internal,10.20.2.23,aio-libs,aiohttp,3.13.2,data_pipeline,staging,medium,hira.ahmed@cortexa.example,unpatched,2026-06-13,2026-09-30,INSERT,2026-09-30
-A-0052,tool-goclaw-staging-13.cortexa.internal,10.40.4.23,nextlevelbuilder,GoClaw,3.11.0,internal_tools,staging,high,sana.raza@cortexa.example,patch_pending,2026-07-05,2026-09-30,INSERT,2026-09-30
-A-0049,tool-goclaw-staging-11.cortexa.internal,10.40.4.21,nextlevelbuilder,GoClaw,3.11.0,internal_tools,staging,high,hira.javed@cortexa.example,decommissioned,2026-05-10,2026-09-30,DELETE,2026-09-30
