@@ -1,0 +1,38 @@
+name: Daily Incremental Data Fetch
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  fetch_latest_data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pandas
+
+      - name: Fetch Fresh Incremental Data from APIs
+        run: |
+          python fetch_samples.py epss --load incremental
+          python fetch_samples.py nvd --load incremental
+          python fetch_samples.py kev --load incremental
+
+      - name: Commit and Push Updated Files to Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/sample_raw/incremental/
+          git commit -m "chore(data): automated daily incremental fetch" || echo "No changes to commit"
+          git push
