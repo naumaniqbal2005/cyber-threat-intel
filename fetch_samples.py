@@ -16,9 +16,15 @@ KEV_MIRROR = "https://raw.githubusercontent.com/aboutcode-org/aboutcode-mirror-k
 EPSS_URL = "https://epss.empiricalsecurity.com/epss_scores-current.csv.gz"
 NVD_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 
+BATCH_ID = None  # set from --batch-id CLI arg or auto-generated
+
 
 def out_path(load, name):
-    folder = BASE / ("full_load" if load == "full" else "incremental")
+    if load == "full":
+        folder = BASE / "full_load"
+    else:
+        batch = BATCH_ID or datetime.now(timezone.utc).strftime("%Y-%m-%d_%H%M%S")
+        folder = BASE / "incremental" / batch
     folder.mkdir(parents=True, exist_ok=True)
     return folder / name
 
@@ -33,11 +39,19 @@ def fetch_kev(load):
         r.raise_for_status()
     data = r.json()
 
-    if load == "incremental":
-        cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
-        data["vulnerabilities"] = [v for v in data["vulnerabilities"] if v["dateAdded"] >= cutoff]
+    if load == "full":
+        kev_file = "kev_full_sample.json"
+    else:
+        # CISA has no delta API — download the full catalog, then filter
+        # to only entries added in the last 24 hours for the daily delta.
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
+        all_entries = data["vulnerabilities"]
+        new_entries = [v for v in all_entries if v["dateAdded"] >= cutoff]
+        data["vulnerabilities"] = new_entries
+        kev_file = f"kev_{BATCH_ID}.json"
+        print(f"KEV: {len(new_entries)} new entries in last 24h (of {len(all_entries)} total)")
 
-    path = out_path(load, f"kev_{load}_sample.json")
+    path = out_path(load, kev_file)
     path.write_text(json.dumps(data, indent=2))
     print(f"Saved {path} ({len(data['vulnerabilities'])} entries)")
 
@@ -85,39 +99,27 @@ def fetch_epss_filtered_by_nvd(nvd_file):
 
 
 def fetch_epss(load, max_rows=None, date=None, baseline_date=None):
+    """Fetch EPSS scores.
+
+    Both full and incremental load a complete daily snapshot — EPSS scores
+    shift entirely each day, so a full reload is always required.
+    """
     if load == "full":
-        rows, header_line = fetch_epss_full_raw(date)
-        items = list(rows.items()) if max_rows is None else list(rows.items())[:max_rows]
-        path = out_path(load, "epss_full_sample.csv")
-        with open(path, "w") as f:
-            f.write(header_line + "\ncve,epss,percentile\n")
-            for cve, (epss, pct) in items:
-                f.write(f"{cve},{epss},{pct}\n")
-        print(f"Saved {path} ({len(items)} rows). First line: {header_line}")
-        return
+        epss_file = "epss_full_sample.csv"
+    else:
+        epss_file = f"epss_{BATCH_ID}.csv"
 
-    baseline, _ = fetch_epss_full_raw(baseline_date)
-    current, header_line = fetch_epss_full_raw(date)
-
-    changed = []
-    for cve, (epss, pct) in current.items():
-        if cve not in baseline:
-            changed.append((cve, epss, pct, "new"))
-        else:
-            old_epss, _ = baseline[cve]
-            if abs(epss - old_epss) > 0:
-                changed.append((cve, epss, pct, "updated"))
-
-    changed = changed[:max_rows]
-    path = out_path(load, "epss_incremental_sample.csv")
+    rows, header_line = fetch_epss_full_raw(date)
+    items = list(rows.items()) if max_rows is None else list(rows.items())[:max_rows]
+    path = out_path(load, epss_file)
     with open(path, "w") as f:
-        f.write(header_line + "\ncve,epss,percentile,change_type\n")
-        for cve, epss, pct, ctype in changed:
-            f.write(f"{cve},{epss},{pct},{ctype}\n")
-    print(f"Saved {path} ({len(changed)} changed/new rows out of {len(current)} total CVEs)")
+        f.write(header_line + "\ncve,epss,percentile\n")
+        for cve, (epss, pct) in items:
+            f.write(f"{cve},{epss},{pct}\n")
+    print(f"Saved {path} ({len(items)} rows). First line: {header_line}")
 
 
-def fetch_nvd(load, days=2, per_page=2000, start_year=2019):
+def fetch_nvd(load, days=1, per_page=2000, start_year=2019):
     """Fetch NVD CVEs.
 
     full load: paginate through 120-day windows from start_year (1999) to present.
@@ -165,7 +167,7 @@ def fetch_nvd(load, days=2, per_page=2000, start_year=2019):
             "version": "2.0",
             "vulnerabilities": all_vulns,
         }
-        path = out_path(load, f"nvd_cves_{load}_sample.json")
+        path = out_path(load, f"nvd_{BATCH_ID}.json")
         path.write_text(json.dumps(output, indent=2))
         print(f"Saved {path} ({len(all_vulns)} of {total} total CVEs)")
         return
@@ -286,11 +288,14 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("source", choices=["kev", "epss", "nvd", "epss_filtered", "nvd_for_kev"])
     ap.add_argument("--load", choices=["full", "incremental"], required=True)
-    ap.add_argument("--days", type=int, default=2, help="NVD incremental window in days")
+    ap.add_argument("--days", type=int, default=1, help="NVD incremental window in days (default: 1 = 24h)")
     ap.add_argument("--date", type=str, default=None, help="EPSS: pull a specific historical date (YYYY-MM-DD)")
     ap.add_argument("--baseline-date", type=str, default=None, help="EPSS: the full-load date to diff against")
     ap.add_argument("--start-year", type=int, default=2019, help="NVD full load: start year for historical fetch")
+    ap.add_argument("--batch-id", type=str, default=None, help="Incremental: batch ID for timestamped folder/filenames")
     a = ap.parse_args()
+
+    BATCH_ID = a.batch_id
 
     if a.source == "kev":
         fetch_kev(a.load)
