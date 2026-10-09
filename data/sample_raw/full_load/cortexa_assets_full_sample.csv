@@ -1,0 +1,11 @@
+asset_id,hostname,ip_address,os_name,os_version,software_name,software_version,department,owner,criticality,exposure,environment,location,status
+AST-001,web-prod-01,10.0.1.5,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.52,Engineering,eng-team@corp.com,High,Internet-facing,Production,us-east-1a,Active
+AST-002,db-prod-01,10.0.2.10,Windows Server,2019 Datacenter,Microsoft SQL Server,2019,Operations,dba-team@corp.com,Critical,Internal,Production,us-east-1b,Active
+AST-003,bastion-01,10.0.0.5,Amazon Linux,2,OpenSSH,9.6p1,DevOps,devops-team@corp.com,Medium,Internet-facing,Production,us-east-1a,Active
+AST-004,cache-01,10.0.3.20,Ubuntu Server,24.04 LTS,Redis,7.0.11,Platform,platform-team@corp.com,Low,Internal,Production,us-east-1c,Active
+AST-005,api-gw-01,10.0.4.15,Ubuntu Server,22.04 LTS,Nginx,1.24.0,Engineering,eng-team@corp.com,High,Internet-facing,Production,us-east-1a,Active
+AST-006,monitor-01,10.0.5.10,Debian,12,Prometheus,2.51.0,DevOps,devops-team@corp.com,Medium,Internal,Production,us-east-1b,Active
+AST-007,fileshare-01,10.0.6.30,Windows Server,2022,Samba,4.18.5,Finance,fin-ops@corp.com,Critical,Internal,Production,us-east-1c,Active
+AST-008,build-agent-01,10.0.7.12,Ubuntu,24.04 LTS,Docker,26.0.0,DevOps,devops-team@corp.com,Low,Internal,Development,us-east-1a,Active
+AST-009,vpn-gw-01,10.0.0.1,CentOS,8 Stream,OpenVPN,2.6.10,Security,sec-team@corp.com,Critical,Internet-facing,Production,us-east-1b,Active
+AST-010,logstash-01,10.0.8.20,Amazon Linux,2023,Logstash,8.14.0,DevOps,devops-team@corp.com,Medium,Internal,Production,us-east-1c,Active

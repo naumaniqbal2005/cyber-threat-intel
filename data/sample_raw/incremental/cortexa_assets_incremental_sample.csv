@@ -1,0 +1,5 @@
+asset_id,hostname,ip_address,os_name,os_version,software_name,software_version,department,owner,criticality,exposure,environment,location,status
+AST-001,web-prod-01,10.0.1.5,Ubuntu Server,24.04 LTS,Apache HTTP Server,2.4.58,Engineering,eng-team@corp.com,High,Internet-facing,Production,us-east-1a,Active
+AST-002,db-prod-01,10.0.2.10,Windows Server,2022 Datacenter,Microsoft SQL Server,2022,Operations,dba-team@corp.com,Critical,Internal,Production,us-east-1b,Active
+AST-007,fileshare-01,10.0.6.30,Windows Server,2022,Samba,4.18.5,Finance,fin-ops@corp.com,Critical,Internal,Production,us-east-1c,Decommissioned
+AST-011,container-01,10.0.9.5,Container-Optimized OS,stable,Kubernetes,1.30.0,Engineering,eng-team@corp.com,High,Internet-facing,Production,us-east-1a,Active
