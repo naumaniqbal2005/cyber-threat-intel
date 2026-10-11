@@ -2,7 +2,9 @@
 
 Phase 2 of our Spark/Databricks medallion pipeline. It ingests vulnerability data (NVD), exploit-likelihood scores (EPSS), known-exploited vulnerabilities (CISA KEV) and a synthetic asset inventory (Cortexa) into **Bronze** Delta tables, then merges the three CVE feeds into one deduplicated **Silver** table.
 
-**Team:** _<name 1>, <name 2>_
+**Team:** Afras Shahnawaz, Rana Nauman Iqbal
+
+**Roll no:** 24L-2547, 24L-2565
 
 ---
 
@@ -27,7 +29,7 @@ All tables live in `<current catalog>.cyber_threat`.
 | `notebooks/00_config_and_logging` | Table names, explicit source schemas, log table and `write_log()` helper. Pulled in by the other notebooks with `%run`. |
 | `notebooks/00b_reset_bronze` | Truncates the Bronze tables (and optionally the log table) for a clean re-run. |
 | `notebooks/01_landing_to_bronze` | Raw files to Bronze. Supports `full`, `incremental` and `backfill` loads and detects schema changes. |
-| `notebooks/02_bronze_to_silver` | Dedup, flatten, join, then `MERGE` into the Silver table. |
+| `notebooks/02_bronze_to_silver` | Dedup, flatten, join, then `MERGE` into the Silver table. Reads everything in Bronze, so it can also rebuild Silver from scratch. |
 | `data/sample_raw/full_load/` | Full-load sample files for each source. |
 | `data/sample_raw/incremental/<YYYY-MM-DD_HHMMSS>/` | One folder per incremental batch (`epss_<batch>.csv`, `kev_<batch>.json`, `nvd_<batch>.json`). |
 | `data/sample_raw/incremental/2026-10-01_000000/` | Schema change demo batch (see section 7). |
@@ -53,7 +55,9 @@ All tables live in `<current catalog>.cyber_threat`.
 
 ### 4.1 Bronze
 
-Bronze keeps the source structure as read with an **explicit schema** (defined in `00_config_and_logging`). Every Bronze table also gets three audit columns: `load_timestamp TIMESTAMP`, `source_file STRING`, `load_type STRING`. Bronze is **append-only**: every load adds rows and nothing is updated or deleted.
+Bronze keeps the source structure as read with an **explicit schema** (`StructType` / `StructField`, defined in `00_config_and_logging`; `inferSchema` is never used). Every Bronze table also gets three audit columns: `load_timestamp TIMESTAMP`, `source_file STRING`, `load_type STRING`. Bronze is **append-only**: every load adds rows and nothing is updated or deleted.
+
+Bronze has no enforced primary key because it keeps every load. Logical keys (not enforced): `bronze_nvd (id, load_timestamp)`, `bronze_epss (cve, load_timestamp)`, `bronze_kev (cveID, load_timestamp)`, `bronze_assets (asset_id, load_timestamp)`.
 
 **`bronze_epss`**
 
@@ -62,6 +66,7 @@ Bronze keeps the source structure as read with an **explicit schema** (defined i
 | cve | STRING |
 | epss | DOUBLE |
 | percentile | DOUBLE |
+| load_timestamp, source_file, load_type | TIMESTAMP, STRING, STRING |
 
 **`bronze_kev`** (one row per entry of `vulnerabilities[]`)
 
@@ -69,7 +74,8 @@ Bronze keeps the source structure as read with an **explicit schema** (defined i
 |---|---|
 | cveID, vendorProject, product, vulnerabilityName, shortDescription, requiredAction, knownRansomwareCampaignUse, forensicTriage, notes | STRING |
 | dateAdded, dueDate | STRING (cast to DATE in Silver) |
-| cwes | ARRAY&lt;STRING&gt; |
+| cwes | `ARRAY<STRING>` |
+| load_timestamp, source_file, load_type | TIMESTAMP, STRING, STRING |
 
 **`bronze_nvd`** (one row per `vulnerabilities[].cve`)
 
@@ -78,17 +84,18 @@ Bronze keeps the source structure as read with an **explicit schema** (defined i
 | id | STRING (the CVE id) |
 | sourceIdentifier, vulnStatus | STRING |
 | published, lastModified | TIMESTAMP |
-| descriptions | ARRAY&lt;STRUCT&lt;lang, value&gt;&gt; |
+| descriptions | `ARRAY<STRUCT<lang, value>>` |
 | metrics | STRUCT of `cvssMetricV2`, `cvssMetricV30`, `cvssMetricV31`, `cvssMetricV40` (each an array of structs holding `cvssData`, `exploitabilityScore`, `impactScore`, ...) |
-| weaknesses | ARRAY&lt;STRUCT&lt;source, type, description[]&gt;&gt; |
-| affected | ARRAY&lt;STRUCT&lt;source, affectedData[]&gt;&gt; |
-| references | ARRAY&lt;STRUCT&lt;url, source, tags[]&gt;&gt; |
+| weaknesses | `ARRAY<STRUCT<source, type, description[]>>` |
+| affected | `ARRAY<STRUCT<source, affectedData[]>>` |
+| references | `ARRAY<STRUCT<url, source, tags[]>>` |
+| load_timestamp, source_file, load_type | TIMESTAMP, STRING, STRING |
 
-**`bronze_assets`** (full load): `asset_id, hostname, ip_address, os_name, os_version, software_name, software_version, department, owner, criticality, exposure, environment, location, status` (all STRING). Incremental asset files use a slimmer schema with a `change_type` column instead of the descriptive columns.
+**`bronze_assets`** (full load): `asset_id, hostname, ip_address, os_name, os_version, software_name, software_version, department, owner, criticality, exposure, environment, location, status` (all STRING) plus the three audit columns. Incremental asset files use a slimmer schema with a `change_type` column instead of the descriptive columns.
 
 ### 4.2 Silver
 
-**`silver_cve_unified`**: one row per CVE, **key = `cve_id`**. NVD is the base table; EPSS and KEV are left-joined on `cve_id`.
+**`silver_cve_unified`**: one row per CVE, **primary key = `cve_id`** (enforced through the MERGE key). NVD is the base table; EPSS and KEV are left-joined on `cve_id`.
 
 | Column | Type | Source / logic |
 |---|---|---|
@@ -99,15 +106,15 @@ Bronze keeps the source structure as read with an **explicit schema** (defined i
 | cvss_v31_vector | STRING | CVSS v3.1 vector string |
 | cvss_base_score, cvss_severity | DOUBLE, STRING | `coalesce` of v3.1, then v3.0, then v2 |
 | cvss_vector | STRING | v3.1 vector |
-| cwe_ids | ARRAY&lt;STRING&gt; | Flattened `weaknesses[].description[].value` |
+| cwe_ids | `ARRAY<STRING>` | Flattened `weaknesses[].description[].value` |
 | vuln_status, source_identifier | STRING | NVD |
 | published_date, last_modified | TIMESTAMP | NVD `published`, `lastModified` |
 | epss_score, epss_percentile | DOUBLE | EPSS |
 | kev_date_added, kev_due_date | DATE | KEV (cast from string) |
 | vendor_project, product, vulnerability_name, short_description, required_action, known_ransomware_use, kev_notes | STRING | KEV |
-| kev_cwes | ARRAY&lt;STRING&gt; | KEV `cwes` |
+| kev_cwes | `ARRAY<STRING>` | KEV `cwes` |
 | is_in_kev | BOOLEAN | `true` when `kev_date_added` is not null |
-| silver_load_timestamp | TIMESTAMP | Time the row was built |
+| silver_load_timestamp | TIMESTAMP | Time the row was built (the Silver load timestamp) |
 
 **Deduplication before the join** (`row_number()` per `cve_id`, keep rank 1):
 - NVD: newest `lastModified`, ties broken by newest `load_timestamp`
@@ -125,6 +132,8 @@ Bronze keeps the source structure as read with an **explicit schema** (defined i
 | `batch_id` | e.g. `2026-10-09_185004` | Only used for `backfill` |
 | `repo_path` | `/Workspace/Users/<you>/cyber-threat-intel` | Set to your own workspace path |
 
+`02_bronze_to_silver` has no widgets: it always reads everything currently in Bronze and merges it into Silver.
+
 ### Clean start (optional)
 Run `00b_reset_bronze`. It truncates the four Bronze tables and, if `reset_log = True`, the log table too. Set `reset_log = False` to keep the log history. It does **not** touch Silver; to reset Silver as well run `DROP TABLE IF EXISTS <catalog>.cyber_threat.silver_cve_unified`.
 
@@ -132,16 +141,23 @@ Run `00b_reset_bronze`. It truncates the four Bronze tables and, if `reset_log =
 1. `01_landing_to_bronze` with `load_type = full`, Run all.
 2. `02_bronze_to_silver`, Run all.
 
-### Incremental load
+### Incremental load (standard run)
 1. `01_landing_to_bronze` with `load_type = incremental`. It automatically picks the **latest** folder under `data/sample_raw/incremental/`.
 2. `02_bronze_to_silver`, Run all.
 
-### Backfill
-Loads a specific, usually older, batch into Bronze.
+### Backfill (Raw to Bronze)
+Loads a specific, usually older, batch into Bronze at any time.
 1. `01_landing_to_bronze` with `load_type = backfill` and `batch_id` set to an existing folder name. An unknown batch id raises an error that lists the available batches.
 2. `02_bronze_to_silver`, Run all.
 
-Because Silver is merged on `cve_id` and the dedup/`MERGE` conditions compare `last_modified`, an older backfilled record does not overwrite a newer one.
+For NVD, Silver is merged on `cve_id` and the MERGE compares `last_modified`, so an older backfilled NVD record does not overwrite a newer one. EPSS and KEV take the most recently loaded Bronze row, so backfilling an old batch after a newer one can overwrite newer EPSS scores or KEV flags (see section 10).
+
+### Silver rebuild (Bronze to Silver backfill)
+Silver can be rebuilt at any time from Bronze. Bronze is append-only and holds the full load plus every incremental and backfilled batch, so recovery is:
+1. `DROP TABLE IF EXISTS <catalog>.cyber_threat.silver_cve_unified`
+2. Run `02_bronze_to_silver` (Run all).
+
+The MERGE on `cve_id` recreates one row per CVE from all data in Bronze. Running it again inserts 0 rows and updates 0 rows.
 
 > Always run Bronze first, then Silver. Silver only reads whatever is already in Bronze.
 
@@ -176,6 +192,7 @@ WHEN NOT MATCHED THEN INSERT *
   - **Missing columns** are filled with NULL.
   - Every change is written to the log table with `status = 'Schema Change'` and the details in `error_message` (e.g. `added=['epss_trend'] | missing=[]`).
 - KEV, NVD and asset files are read with their explicit schemas; unexpected extra fields in them are ignored rather than detected.
+- Values that cannot be cast to the schema type become NULL instead of crashing the batch.
 - Silver selects its columns explicitly, so a new Bronze column does not automatically appear in Silver. It has to be added on purpose.
 
 **Try it yourself:** the batch folder `data/sample_raw/incremental/2026-10-01_000000` contains an EPSS file with an extra column (`epss_trend`) and made-up CVE ids that never reach Silver. In `01_landing_to_bronze` set `load_type = backfill` and `batch_id = 2026-10-01_000000`, then Run all. The log shows a `Schema Change` row, `bronze_epss` gains the `epss_trend` column, and the KEV, NVD and asset loads are logged as `Skipped` because this batch has no files for them. Normal `incremental` runs ignore this folder because it sorts before the real batches. Don't run `02_bronze_to_silver` after this batch.
@@ -217,6 +234,8 @@ One row per load of one source into one table.
 - Bronze is append-only, so repeated loads stack rows there. Silver stays clean because of the dedup and MERGE. Use `00b_reset_bronze` for a clean start.
 - EPSS publishes a full snapshot each day, so each EPSS incremental batch is as large as the full load.
 - `bronze_assets` is loaded by the full load but not used in Silver yet. The daily workflow does not produce asset files, so incremental and backfill loads log the asset step as `Skipped`.
-- Schema drift detection is implemented for EPSS only.
+- Schema drift detection is implemented for EPSS only. NVD and KEV extra fields are ignored, and values that cannot be cast become NULL.
+- `02_bronze_to_silver` always processes all of Bronze and has no parameters. Reprocessing a single batch into Silver is done by loading it into Bronze and re-running Silver, or by rebuilding Silver as described in section 5.
+- NVD is protected against older data overwriting newer data because the MERGE compares `last_modified`. EPSS and KEV take the most recently loaded Bronze row, so backfilling an old batch after a newer one can overwrite newer EPSS scores or KEV flags.
 - The MERGE only updates on newer NVD data, changed EPSS score, or changed KEV flag; other KEV field changes alone do not trigger an update.
 - The daily workflow keeps adding new batch folders, so a later `incremental` run loads a newer batch than the one in the results table (section 9) and the counts will differ. The `backfill` batches named in this README stay fixed.
