@@ -1,0 +1,4 @@
+#model_version:v2025.03.14,score_date:2026-10-10T00:00:00Z
+cve,epss,percentile,epss_trend
+CVE-2021-44228,0.97,0.999,up
+CVE-2021-45046,0.95,0.998,flat
