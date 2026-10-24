@@ -1,0 +1,21 @@
+asset_id,hostname,software_name,software_version,os_name,os_version
+AST-APACHE-01,apache-prod-01,Apache HTTP Server,2.4.49,Ubuntu Server,22.04 LTS
+AST-APACHE-02,apache-prod-02,Apache HTTP Server,2.4.58,Ubuntu Server,22.04 LTS
+AST-APACHE-03,apache-prod-03,Apache HTTP Server,2.4.50,Red Hat Enterprise Linux,8 Stream
+AST-TOMCAT-01,tomcat-prod-01,Tomcat,9.0.0,Ubuntu Server,22.04 LTS
+AST-TOMCAT-02,tomcat-prod-02,Tomcat,8.5.0,Debian,12
+AST-MYSQL-01,mysql-prod-01,MySQL,5.7.9,Ubuntu Server,22.04 LTS
+AST-MYSQL-02,mysql-prod-02,MySQL,8.0.0,Red Hat Enterprise Linux,8 Stream
+AST-NODEJS-01,nodejs-prod-01,Node.js,16.0.0,Debian,12
+AST-NODEJS-02,nodejs-prod-02,Node.js,18.0.0,Alpine Linux,3.20
+AST-POSTGRES-01,postgres-prod-01,PostgreSQL,12.1,Debian,12
+AST-POSTGRES-02,postgres-prod-02,PostgreSQL,9.6.0,Ubuntu Server,22.04 LTS
+AST-K8S-01,k8s-prod-01,Kubernetes,1.24.0,Amazon Linux,2023
+AST-K8S-02,k8s-prod-02,Kubernetes,1.28.0,Amazon Linux,2023
+AST-MSSQL-01,mssql-prod-01,Microsoft SQL Server,2019,Windows Server,2019 Datacenter
+AST-OPENVPN-01,openvpn-prod-01,OpenVPN,2.4.0,Alpine Linux,3.20
+AST-REDIS-01,redis-prod-01,Redis,6.0.0,Debian,12
+AST-REDIS-02,redis-prod-02,Redis,5.0.0,CentOS,8 Stream
+AST-PROMETHEUS-01,prometheus-prod-01,Prometheus,2.30.0,CentOS,8 Stream
+AST-DOCKER-01,docker-prod-01,Docker,20.10.0,Ubuntu Server,22.04 LTS
+AST-LOGSTASH-01,logstash-prod-01,Logstash,7.0.0,Amazon Linux,2023
