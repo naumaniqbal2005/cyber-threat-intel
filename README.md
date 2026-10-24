@@ -384,18 +384,38 @@ Every step logged with row counts and timings; idempotence verified (unchanged d
 
 ## 15. Spark execution notes (for the DAG analysis)
 
-- The fact build (03 cell 10) is the most complex transformation: `explode_outer` over `bronze_nvd.configurations` (nested nodes → cpeMatch arrays, ~241k CVEs) → join dim_software on (vendor, product) → join dim_asset on software_name → Python UDF version filter → join silver on cve_id → `dropDuplicates(asset_id, cve_key)` → MERGE.
-- **Shuffles:** the two equi-joins and the dedup hash-partition on (vendor, product) / software_name / (asset_id, cve_key); the silver dedup windows shuffle on cve_id.
-- **Predicate pushdown discussion point:** the version-check UDF is a black box to Catalyst — no pushdown or pruning past it. A native Spark expression or pre-exploded bound joins would let the optimizer prune earlier; worth calling out in the report.
-- Compute: serverless (Spark Connect), PySpark DataFrame API throughout; the version comparator is the only Python UDF.
-- For the report screenshot: open the Spark UI of a 03_silver_to_gold run and capture the fact-cell query DAG (explode → join → UDF filter → join → MERGE stage chain).
+Measured from the physical plan (`explain("formatted")`) of the fact build (03 cell 10) on serverless compute (Photon + AQE), captured 2026-10-24.
 
-## 16. Cost & FinOps (inputs for the report)
+**The row funnel:** bronze_nvd 251,298 distinct CVEs → `explode_outer` over `configurations → nodes → cpeMatch` produces **1,162,904** CPE criteria rows → software-mapping joins + Python UDF version check + silver join + dedup → **1,031** fact rows (≈1,130 CPE rows per fact row).
 
-- Compute is **serverless** — billed per usage, no idle clusters. Ballparks from our runs: bronze batch load ≈ 1–2 min, silver MERGE pass a few minutes (full bronze scan), gold full build ≈ 5 min, gold incremental refresh ≈ 2 min. Exact wall-clock times per step are in `pipeline_execution_logs` (`start_time` / `end_time`) — pull them before writing the report.
-- The dominant data-growth cost is EPSS: a full ~385k-row snapshot daily (~tens of MB/day) appended to bronze forever. An enterprise hourly pipeline should switch EPSS to true diffs to stop linear bronze growth.
-- MERGE-with-change-detection keeps silver/gold rewrites proportional to the changed fraction, not table size — the main architectural cost lever at scale.
-- Next optimizations if enterprise-scale: OPTIMIZE / liquid clustering on `gold_fact_vulnerability` and `gold_dim_cve`, EPSS diffing, and a scheduled Lakeflow Job so runs never need a human.
+**How Spark executed it (per the physical plan):**
+- **Scan with column pruning + predicate pushdown:** the bronze_nvd Parquet scan outputs only 2 of the table's columns (`id`, `configurations`), with `isnotnull(id)` pushed down as a `RequiredDataFilter` — pruning and pushdown happen at the source.
+- **Generate (explode):** three chained `PhotonGenerate` operators expand configurations → nodes → cpeMatch.
+- **Shuffles (3):** (1) `dropDuplicates(cve_id)` compiles to a `first()` hash aggregate with a hash-partition exchange on `cve_id`; (2) the silver join shuffles silver's side on `cve_id` (`PhotonShuffledHashJoin`); (3) the final `dropDuplicates(asset_id, cve_key)` aggregates with another exchange.
+- **Broadcast hash joins:** `gold_dim_software` (16 rows) and `gold_dim_asset` (20 rows) are broadcast (`PhotonBroadcastHashJoin`) — Spark skips shuffles entirely for the small dimensions because they are under the broadcast threshold.
+- **Python UDF barrier:** `ArrowEvalPython` runs the version comparator in columnar Arrow batches after the broadcast joins (on the already-reduced row set) but before the silver join. The UDF is a black box to Catalyst — no predicate pushdown can cross it, so all 1.16M exploded rows must be materialized and shipped to Python before the filter. A native Spark expression would let the optimizer prune earlier; the trade-off was deliberate (version semantics like `9.6p1` are far easier to get right in Python, and the UDF runs post-join on a much smaller stream).
+- **Engine:** the plan executes as an `AdaptiveSparkPlan` under **Photon** (serverless vectorized engine), then the MERGE write runs via `merge_dimension()`.
+
+**Reproducibility proof (2026-10-24):** rebuilding the fact from scratch with identical logic reproduces exactly 1,031 rows with 0 rows in the target unexplained by the fresh build — the fact is a deterministic function of bronze + silver + dims.
+
+**Screenshot for the report:** run cell 10 of `03_silver_to_gold`, open the cell output's Spark jobs link (or the notebook run history → View Spark UI), go to the SQL/DataFrame tab, pick the fact MERGE query, and capture the DAG visualization. The stage chain to annotate: Parquet scan (2 cols, pushdown) → Generate ×3 → shuffle (cve dedup) → broadcast joins → ArrowEvalPython UDF → shuffle (silver join) → dedup aggregate → MERGE write.
+
+## 16. Cost & FinOps (measured 2026-10-24)
+
+**Measured compute time** (from `pipeline_execution_logs`, Oct 24): all 33 logged pipeline steps of the day total **275 s**. Per layer: Silver-to-Gold 27 steps / 225 s (avg 8.3 s; max 21 s = full fact build, 16 s incremental), Raw-to-Bronze 5 steps / 36 s (max 18 s = NVD batch), Bronze-to-Silver full-bronze MERGE 14 s.
+
+**A typical daily incremental run** (batch `2026-10-13_060009`): Bronze 27 s (EPSS 6 + KEV 3 + NVD 18) + Silver MERGE 14 s + Gold refresh 63 s ≈ **104 s (~1.7 minutes)** of active serverless compute.
+
+**Measured consumption** (`system.billing.usage` × `list_prices`, last 7 days): **4.1 DBUs ≈ $1.18 total** — serverless interactive compute 1.335 DBU (≈$1.00), storage ≈$0.006, networking negligible. (2.4 DBU of Genie AI usage is assistant overhead, not pipeline.) The entire project to date — full loads, silver rebuilds, asset swap, dozens of runs — cost about a dollar; a single daily incremental run is on the order of a cent.
+
+**If this ran hourly for an enterprise for a year:** 24 × 365 = 8,760 runs ≈ 8,760 × ~2 min ≈ 290 compute-hours — at current (student-scale) data that is still only low hundreds of dollars at serverless rates. The real enterprise risks are two super-linear cost drivers: (1) **EPSS publishes a full snapshot (~385k rows, tens of MB) every cycle** — hourly ingestion would append ~9M rows/day to append-only bronze forever; (2) **`02_bronze_to_silver` re-reads all of bronze on every run** — O(total history) per run even when the daily change is a few thousand rows.
+
+**Optimizations, in impact order:**
+1. **EPSS diffing** — ingest only changed (cve, epss) pairs per cycle; cuts bronze growth ~99%.
+2. **Incremental silver** — process only batches newer than a watermark (the log table already tracks what is ingested); drops per-run cost from O(history) to O(daily change).
+3. **MERGE + record_hash change detection (already built)** — silver/gold rewrites stay proportional to the changed fraction, not table size.
+4. **Lakeflow Job orchestration** — scheduled runs with retries/alerts, no human-driven sessions.
+5. **OPTIMIZE / liquid clustering** on `gold_fact_vulnerability` and `gold_dim_cve` if the fact grows past millions of rows.
 
 ## 17. Remaining Phase 3 checklist
 
