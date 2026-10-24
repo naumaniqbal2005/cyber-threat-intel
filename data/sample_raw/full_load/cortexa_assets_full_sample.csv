@@ -1,11 +1,101 @@
 asset_id,hostname,ip_address,os_name,os_version,software_name,software_version,department,owner,criticality,exposure,environment,location,status
-AST-001,web-prod-01,10.0.1.5,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.52,Engineering,eng-team@corp.com,High,Internet-facing,Production,us-east-1a,Active
-AST-002,db-prod-01,10.0.2.10,Windows Server,2019 Datacenter,Microsoft SQL Server,2019,Operations,dba-team@corp.com,Critical,Internal,Production,us-east-1b,Active
-AST-003,bastion-01,10.0.0.5,Amazon Linux,2,OpenSSH,9.6p1,DevOps,devops-team@corp.com,Medium,Internet-facing,Production,us-east-1a,Active
-AST-004,cache-01,10.0.3.20,Ubuntu Server,24.04 LTS,Redis,7.0.11,Platform,platform-team@corp.com,Low,Internal,Production,us-east-1c,Active
-AST-005,api-gw-01,10.0.4.15,Ubuntu Server,22.04 LTS,Nginx,1.24.0,Engineering,eng-team@corp.com,High,Internet-facing,Production,us-east-1a,Active
-AST-006,monitor-01,10.0.5.10,Debian,12,Prometheus,2.51.0,DevOps,devops-team@corp.com,Medium,Internal,Production,us-east-1b,Active
-AST-007,fileshare-01,10.0.6.30,Windows Server,2022,Samba,4.18.5,Finance,fin-ops@corp.com,Critical,Internal,Production,us-east-1c,Active
-AST-008,build-agent-01,10.0.7.12,Ubuntu,24.04 LTS,Docker,26.0.0,DevOps,devops-team@corp.com,Low,Internal,Development,us-east-1a,Active
-AST-009,vpn-gw-01,10.0.0.1,CentOS,8 Stream,OpenVPN,2.6.10,Security,sec-team@corp.com,Critical,Internet-facing,Production,us-east-1b,Active
-AST-010,logstash-01,10.0.8.20,Amazon Linux,2023,Logstash,8.14.0,DevOps,devops-team@corp.com,Medium,Internal,Production,us-east-1c,Active
+AST-NODEJS-01,nodejs-prod-01,180.42.3.112,Debian,12,Node.js,16.0.0,DevOps,sec-team@corp.com,High,DMZ,Production,us-east-1a,Active
+AST-MYSQL-02,mysql-prod-02,8.214.246.19,Red Hat Enterprise Linux,8 Stream,MySQL,8.0.0,Infrastructure,platform-team@corp.com,Critical,Isolated,Production,us-west-2a,Active
+AST-APACHE-01,apache-prod-01,170.209.220.33,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.49,Network,devops-team@corp.com,Medium,Internet-facing,Staging,us-east-1c,Active
+AST-TOMCAT-02,tomcat-prod-02,139.190.174.117,Debian,12,Tomcat,8.5.0,Operations,eng-team@corp.com,Low,Internet-facing,Staging,eu-west-1b,Active
+AST-APACHE-03,apache-prod-03,175.224.197.224,Red Hat Enterprise Linux,8 Stream,Apache HTTP Server,2.4.50,Platform,eng-team@corp.com,Medium,Internet-facing,Production,ap-southeast-1a,Active
+AST-POSTGRES-01,postgres-prod-01,6.160.157.36,Debian,12,PostgreSQL,12.1,Platform,dba-team@corp.com,Low,Internet-facing,Production,ap-southeast-1a,Active
+AST-MYSQL-01,mysql-prod-01,77.19.116.0,Ubuntu Server,22.04 LTS,MySQL,5.7.9,Security,sec-team@corp.com,Low,Internet-facing,Production,eu-west-1b,Active
+AST-APACHE-02,apache-prod-02,250.150.47.117,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.58,Operations,platform-team@corp.com,Medium,Internet-facing,Production,us-east-1b,Active
+AST-NODEJS-02,nodejs-prod-02,159.213.226.199,Alpine Linux,3.20,Node.js,18.0.0,Operations,sec-team@corp.com,Medium,Internal,Production,us-east-1c,Active
+AST-PROMETHEUS-01,prometheus-prod-01,104.102.121.220,CentOS,8 Stream,Prometheus,2.30.0,Security,sec-team@corp.com,Low,Internal,Test,us-east-1a,Active
+AST-REDIS-01,redis-prod-01,100.3.150.215,Debian,12,Redis,6.0.0,Platform,sec-team@corp.com,Critical,Internal,Production,eu-west-1a,Active
+AST-MSSQL-01,mssql-prod-01,81.250.3.128,Windows Server,2019 Datacenter,Microsoft SQL Server,2019,Security,sec-team@corp.com,High,Internet-facing,Test,ap-southeast-1a,Active
+AST-DOCKER-01,docker-prod-01,160.159.181.147,Ubuntu Server,22.04 LTS,Docker,20.10.0,Network,sec-team@corp.com,Low,Internet-facing,Production,us-east-1a,Active
+AST-K8S-01,k8s-prod-01,45.168.166.195,Amazon Linux,2023,Kubernetes,1.24.0,DevOps,fin-ops@corp.com,High,Internet-facing,Test,eu-west-1a,Active
+AST-POSTGRES-01,postgres-prod-01,98.81.47.52,Debian,12,PostgreSQL,12.1,Infrastructure,devops-team@corp.com,Medium,Internet-facing,Staging,ap-southeast-1a,Active
+AST-NODEJS-02,nodejs-prod-02,234.163.45.192,Alpine Linux,3.20,Node.js,18.0.0,Platform,fin-ops@corp.com,Critical,Internal,Production,eu-west-1a,Active
+AST-REDIS-02,redis-prod-02,102.124.134.107,CentOS,8 Stream,Redis,5.0.0,Infrastructure,platform-team@corp.com,Medium,Internal,Production,us-east-1a,Active
+AST-DOCKER-01,docker-prod-01,23.149.103.170,Ubuntu Server,22.04 LTS,Docker,20.10.0,Security,eng-team@corp.com,Low,Internal,Production,eu-west-1a,Active
+AST-APACHE-01,apache-prod-01,56.241.25.91,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.49,Finance,sec-team@corp.com,Low,DMZ,Staging,us-west-2a,Decommissioned
+AST-K8S-01,k8s-prod-01,170.11.108.104,Amazon Linux,2023,Kubernetes,1.24.0,Platform,devops-team@corp.com,Low,DMZ,Production,eu-west-1a,Active
+AST-APACHE-03,apache-prod-03,242.82.173.104,Red Hat Enterprise Linux,8 Stream,Apache HTTP Server,2.4.50,Platform,eng-team@corp.com,Medium,Internet-facing,Staging,us-east-1b,Active
+AST-MYSQL-01,mysql-prod-01,19.67.134.10,Ubuntu Server,22.04 LTS,MySQL,5.7.9,Infrastructure,eng-team@corp.com,Medium,Internet-facing,Production,eu-west-1a,Active
+AST-K8S-02,k8s-prod-02,76.139.29.70,Amazon Linux,2023,Kubernetes,1.28.0,Security,platform-team@corp.com,High,Internet-facing,Production,ap-southeast-1a,Active
+AST-NODEJS-02,nodejs-prod-02,14.237.175.130,Alpine Linux,3.20,Node.js,18.0.0,Operations,devops-team@corp.com,High,Internet-facing,Production,us-east-1b,Active
+AST-PROMETHEUS-01,prometheus-prod-01,195.182.32.159,CentOS,8 Stream,Prometheus,2.30.0,Finance,dba-team@corp.com,Low,Internet-facing,Production,us-east-1a,Active
+AST-APACHE-02,apache-prod-02,29.248.158.103,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.58,Platform,dba-team@corp.com,Medium,Internet-facing,Staging,us-east-1c,Maintenance
+AST-NODEJS-01,nodejs-prod-01,13.224.180.66,Debian,12,Node.js,16.0.0,Data,platform-team@corp.com,Medium,Internal,Test,us-east-1a,Active
+AST-PROMETHEUS-01,prometheus-prod-01,238.165.7.144,CentOS,8 Stream,Prometheus,2.30.0,Data,platform-team@corp.com,Medium,Internet-facing,Development,us-west-2a,Active
+AST-OPENVPN-01,openvpn-prod-01,47.247.148.95,Alpine Linux,3.20,OpenVPN,2.4.0,DevOps,devops-team@corp.com,High,Internet-facing,Test,us-east-1b,Active
+AST-APACHE-01,apache-prod-01,176.12.175.120,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.49,Operations,fin-ops@corp.com,Medium,DMZ,Production,ap-southeast-1a,Active
+AST-APACHE-02,apache-prod-02,122.125.37.93,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.58,DevOps,eng-team@corp.com,Critical,Internal,Production,ap-southeast-1a,Active
+AST-K8S-02,k8s-prod-02,164.150.192.28,Amazon Linux,2023,Kubernetes,1.28.0,Network,sec-team@corp.com,Critical,Internet-facing,Production,us-east-1a,Active
+AST-POSTGRES-02,postgres-prod-02,110.238.146.180,Ubuntu Server,22.04 LTS,PostgreSQL,9.6.0,Security,sec-team@corp.com,Medium,Internal,Production,us-west-2b,Active
+AST-MYSQL-02,mysql-prod-02,222.241.89.191,Red Hat Enterprise Linux,8 Stream,MySQL,8.0.0,Operations,sec-team@corp.com,Low,DMZ,Production,us-east-1a,Active
+AST-APACHE-01,apache-prod-01,221.7.190.69,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.49,Infrastructure,sec-team@corp.com,High,Internet-facing,Test,eu-west-1b,Active
+AST-PROMETHEUS-01,prometheus-prod-01,247.60.53.38,CentOS,8 Stream,Prometheus,2.30.0,Operations,dba-team@corp.com,Low,Internet-facing,Development,us-east-1b,Active
+AST-POSTGRES-02,postgres-prod-02,29.149.199.56,Ubuntu Server,22.04 LTS,PostgreSQL,9.6.0,Platform,fin-ops@corp.com,High,DMZ,Staging,us-west-2b,Active
+AST-PROMETHEUS-01,prometheus-prod-01,162.224.186.103,CentOS,8 Stream,Prometheus,2.30.0,Platform,fin-ops@corp.com,Low,DMZ,Staging,ap-southeast-1a,Active
+AST-TOMCAT-02,tomcat-prod-02,249.100.13.69,Debian,12,Tomcat,8.5.0,Infrastructure,sec-team@corp.com,Medium,Internal,Production,eu-west-1b,Active
+AST-MYSQL-01,mysql-prod-01,229.159.128.124,Ubuntu Server,22.04 LTS,MySQL,5.7.9,Data,sec-team@corp.com,Critical,Internet-facing,Staging,us-east-1b,Active
+AST-PROMETHEUS-01,prometheus-prod-01,78.24.162.169,CentOS,8 Stream,Prometheus,2.30.0,Engineering,eng-team@corp.com,Medium,Isolated,Production,us-west-2b,Active
+AST-OPENVPN-01,openvpn-prod-01,34.98.113.48,Alpine Linux,3.20,OpenVPN,2.4.0,Network,dba-team@corp.com,Medium,Internet-facing,Test,us-west-2a,Active
+AST-DOCKER-01,docker-prod-01,81.39.162.3,Ubuntu Server,22.04 LTS,Docker,20.10.0,Engineering,dba-team@corp.com,Low,Internet-facing,Production,ap-southeast-1a,Active
+AST-LOGSTASH-01,logstash-prod-01,224.128.53.161,Amazon Linux,2023,Logstash,7.0.0,Network,sec-team@corp.com,Low,Internet-facing,Production,eu-west-1b,Active
+AST-MYSQL-01,mysql-prod-01,31.165.171.85,Ubuntu Server,22.04 LTS,MySQL,5.7.9,Finance,devops-team@corp.com,High,Internal,Production,us-east-1c,Active
+AST-NODEJS-02,nodejs-prod-02,179.249.240.24,Alpine Linux,3.20,Node.js,18.0.0,Platform,platform-team@corp.com,Low,Internal,Development,us-east-1a,Active
+AST-APACHE-01,apache-prod-01,210.176.110.222,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.49,DevOps,dba-team@corp.com,High,Internet-facing,Production,eu-west-1a,Active
+AST-REDIS-02,redis-prod-02,93.184.190.223,CentOS,8 Stream,Redis,5.0.0,Infrastructure,dba-team@corp.com,Medium,Internet-facing,Production,ap-southeast-1a,Active
+AST-APACHE-03,apache-prod-03,8.12.77.16,Red Hat Enterprise Linux,8 Stream,Apache HTTP Server,2.4.50,Finance,platform-team@corp.com,Medium,Internal,Production,eu-west-1a,Maintenance
+AST-POSTGRES-01,postgres-prod-01,215.166.249.209,Debian,12,PostgreSQL,12.1,Data,sec-team@corp.com,High,Internal,Staging,eu-west-1a,Active
+AST-APACHE-03,apache-prod-03,129.203.54.191,Red Hat Enterprise Linux,8 Stream,Apache HTTP Server,2.4.50,Finance,devops-team@corp.com,Medium,DMZ,Production,us-west-2a,Active
+AST-APACHE-01,apache-prod-01,127.121.152.192,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.49,Engineering,eng-team@corp.com,Low,Internet-facing,Test,ap-southeast-1a,Active
+AST-MYSQL-02,mysql-prod-02,51.73.95.197,Red Hat Enterprise Linux,8 Stream,MySQL,8.0.0,Engineering,fin-ops@corp.com,Medium,Internet-facing,Test,eu-west-1b,Active
+AST-APACHE-03,apache-prod-03,217.183.173.255,Red Hat Enterprise Linux,8 Stream,Apache HTTP Server,2.4.50,Operations,platform-team@corp.com,Medium,Internal,Development,us-east-1a,Active
+AST-PROMETHEUS-01,prometheus-prod-01,16.151.34.15,CentOS,8 Stream,Prometheus,2.30.0,DevOps,eng-team@corp.com,Medium,Internet-facing,Test,us-west-2a,Active
+AST-NODEJS-01,nodejs-prod-01,37.153.37.196,Debian,12,Node.js,16.0.0,Network,fin-ops@corp.com,Medium,Internet-facing,Production,us-west-2b,Active
+AST-DOCKER-01,docker-prod-01,228.223.224.215,Ubuntu Server,22.04 LTS,Docker,20.10.0,Operations,fin-ops@corp.com,Medium,Internet-facing,Production,eu-west-1a,Active
+AST-K8S-02,k8s-prod-02,174.75.47.243,Amazon Linux,2023,Kubernetes,1.28.0,Network,dba-team@corp.com,Medium,Isolated,Production,eu-west-1a,Active
+AST-LOGSTASH-01,logstash-prod-01,75.189.74.23,Amazon Linux,2023,Logstash,7.0.0,Engineering,fin-ops@corp.com,Low,Isolated,Production,us-west-2b,Active
+AST-OPENVPN-01,openvpn-prod-01,132.16.34.150,Alpine Linux,3.20,OpenVPN,2.4.0,Data,devops-team@corp.com,Medium,Internal,Production,us-west-2a,Active
+AST-APACHE-01,apache-prod-01,6.176.99.99,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.49,Finance,platform-team@corp.com,Medium,Internet-facing,Staging,ap-southeast-1a,Decommissioned
+AST-APACHE-01,apache-prod-01,235.197.23.252,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.49,Operations,platform-team@corp.com,Medium,Internal,Test,us-east-1b,Active
+AST-DOCKER-01,docker-prod-01,232.154.254.86,Ubuntu Server,22.04 LTS,Docker,20.10.0,Network,sec-team@corp.com,High,Internet-facing,Production,us-west-2b,Active
+AST-K8S-02,k8s-prod-02,84.225.139.124,Amazon Linux,2023,Kubernetes,1.28.0,Platform,devops-team@corp.com,Medium,Internet-facing,Production,us-west-2b,Active
+AST-TOMCAT-01,tomcat-prod-01,189.211.222.138,Ubuntu Server,22.04 LTS,Tomcat,9.0.0,Finance,platform-team@corp.com,Medium,DMZ,Production,us-east-1c,Active
+AST-K8S-01,k8s-prod-01,171.126.48.227,Amazon Linux,2023,Kubernetes,1.24.0,Network,fin-ops@corp.com,High,Isolated,Production,ap-southeast-1a,Active
+AST-TOMCAT-02,tomcat-prod-02,58.158.126.209,Debian,12,Tomcat,8.5.0,Infrastructure,sec-team@corp.com,Critical,Internet-facing,Production,us-east-1a,Active
+AST-REDIS-02,redis-prod-02,174.207.121.162,CentOS,8 Stream,Redis,5.0.0,Engineering,sec-team@corp.com,High,Internet-facing,Development,us-east-1c,Active
+AST-REDIS-01,redis-prod-01,3.83.192.6,Debian,12,Redis,6.0.0,Platform,devops-team@corp.com,Low,Internet-facing,Production,us-west-2a,Active
+AST-K8S-01,k8s-prod-01,199.94.44.65,Amazon Linux,2023,Kubernetes,1.24.0,Finance,devops-team@corp.com,Medium,DMZ,Staging,us-west-2b,Active
+AST-POSTGRES-01,postgres-prod-01,203.51.108.252,Debian,12,PostgreSQL,12.1,Operations,dba-team@corp.com,Medium,DMZ,Staging,eu-west-1a,Active
+AST-PROMETHEUS-01,prometheus-prod-01,233.125.208.218,CentOS,8 Stream,Prometheus,2.30.0,Data,platform-team@corp.com,Medium,Internal,Test,eu-west-1a,Active
+AST-K8S-02,k8s-prod-02,148.158.154.171,Amazon Linux,2023,Kubernetes,1.28.0,Infrastructure,fin-ops@corp.com,Medium,Internet-facing,Test,us-west-2a,Active
+AST-MYSQL-02,mysql-prod-02,185.99.176.71,Red Hat Enterprise Linux,8 Stream,MySQL,8.0.0,Infrastructure,eng-team@corp.com,Medium,Internet-facing,Production,us-east-1b,Active
+AST-MSSQL-01,mssql-prod-01,208.84.5.236,Windows Server,2019 Datacenter,Microsoft SQL Server,2019,DevOps,sec-team@corp.com,High,Internet-facing,Production,us-west-2b,Active
+AST-TOMCAT-02,tomcat-prod-02,59.250.185.130,Debian,12,Tomcat,8.5.0,Security,dba-team@corp.com,Medium,Internet-facing,Production,us-east-1c,Active
+AST-APACHE-02,apache-prod-02,30.116.198.19,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.58,Engineering,eng-team@corp.com,High,Internal,Production,us-east-1a,Active
+AST-MYSQL-01,mysql-prod-01,77.89.104.73,Ubuntu Server,22.04 LTS,MySQL,5.7.9,Data,eng-team@corp.com,Critical,Internal,Production,eu-west-1a,Active
+AST-MYSQL-02,mysql-prod-02,182.42.254.177,Red Hat Enterprise Linux,8 Stream,MySQL,8.0.0,Engineering,eng-team@corp.com,Medium,Internet-facing,Production,eu-west-1b,Active
+AST-TOMCAT-01,tomcat-prod-01,50.101.167.2,Ubuntu Server,22.04 LTS,Tomcat,9.0.0,Infrastructure,dba-team@corp.com,Medium,Internet-facing,Staging,us-east-1a,Active
+AST-POSTGRES-02,postgres-prod-02,172.30.61.119,Ubuntu Server,22.04 LTS,PostgreSQL,9.6.0,Infrastructure,dba-team@corp.com,Medium,Internet-facing,Production,us-east-1a,Active
+AST-NODEJS-01,nodejs-prod-01,74.217.160.227,Debian,12,Node.js,16.0.0,DevOps,platform-team@corp.com,Low,Internet-facing,Staging,us-east-1b,Active
+AST-APACHE-02,apache-prod-02,186.43.230.107,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.58,DevOps,platform-team@corp.com,High,Internet-facing,Production,us-west-2b,Active
+AST-OPENVPN-01,openvpn-prod-01,197.198.155.14,Alpine Linux,3.20,OpenVPN,2.4.0,Engineering,devops-team@corp.com,Low,Internal,Production,us-east-1a,Active
+AST-OPENVPN-01,openvpn-prod-01,227.15.246.59,Alpine Linux,3.20,OpenVPN,2.4.0,DevOps,dba-team@corp.com,Critical,Internal,Production,eu-west-1a,Active
+AST-NODEJS-01,nodejs-prod-01,82.11.56.52,Debian,12,Node.js,16.0.0,Security,fin-ops@corp.com,Medium,Isolated,Test,us-east-1a,Decommissioned
+AST-REDIS-02,redis-prod-02,105.215.182.165,CentOS,8 Stream,Redis,5.0.0,Network,platform-team@corp.com,Low,Isolated,Production,us-east-1b,Active
+AST-TOMCAT-01,tomcat-prod-01,210.159.117.207,Ubuntu Server,22.04 LTS,Tomcat,9.0.0,Platform,sec-team@corp.com,Critical,Internal,Staging,ap-southeast-1a,Active
+AST-LOGSTASH-01,logstash-prod-01,29.85.114.210,Amazon Linux,2023,Logstash,7.0.0,DevOps,dba-team@corp.com,Low,Internet-facing,Production,us-west-2a,Active
+AST-NODEJS-02,nodejs-prod-02,105.122.72.151,Alpine Linux,3.20,Node.js,18.0.0,Infrastructure,eng-team@corp.com,Critical,DMZ,Production,us-east-1b,Active
+AST-REDIS-01,redis-prod-01,72.117.168.140,Debian,12,Redis,6.0.0,Data,devops-team@corp.com,Critical,Internet-facing,Production,us-west-2b,Active
+AST-K8S-02,k8s-prod-02,69.249.43.56,Amazon Linux,2023,Kubernetes,1.28.0,Network,devops-team@corp.com,Medium,Isolated,Production,ap-southeast-1a,Decommissioned
+AST-LOGSTASH-01,logstash-prod-01,19.142.139.195,Amazon Linux,2023,Logstash,7.0.0,DevOps,fin-ops@corp.com,Medium,Internet-facing,Staging,ap-southeast-1a,Active
+AST-OPENVPN-01,openvpn-prod-01,233.202.146.55,Alpine Linux,3.20,OpenVPN,2.4.0,Infrastructure,platform-team@corp.com,Low,Internet-facing,Production,us-east-1c,Maintenance
+AST-PROMETHEUS-01,prometheus-prod-01,145.30.51.85,CentOS,8 Stream,Prometheus,2.30.0,Security,eng-team@corp.com,Medium,Internet-facing,Staging,us-east-1c,Active
+AST-NODEJS-01,nodejs-prod-01,244.157.35.35,Debian,12,Node.js,16.0.0,Infrastructure,platform-team@corp.com,Low,Internal,Production,ap-southeast-1a,Active
+AST-APACHE-01,apache-prod-01,64.101.32.20,Ubuntu Server,22.04 LTS,Apache HTTP Server,2.4.49,Infrastructure,platform-team@corp.com,Low,Internet-facing,Staging,eu-west-1a,Active
+AST-TOMCAT-02,tomcat-prod-02,244.211.190.44,Debian,12,Tomcat,8.5.0,Operations,dba-team@corp.com,Medium,Internal,Production,us-west-2b,Active
+AST-PROMETHEUS-01,prometheus-prod-01,67.97.246.122,CentOS,8 Stream,Prometheus,2.30.0,DevOps,devops-team@corp.com,Medium,DMZ,Production,eu-west-1a,Active
+AST-K8S-01,k8s-prod-01,215.118.228.117,Amazon Linux,2023,Kubernetes,1.24.0,Network,platform-team@corp.com,Critical,Isolated,Staging,us-east-1b,Active
