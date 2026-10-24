@@ -1,2 +1,3 @@
 notebooks/Report/
 data/sample_raw/full_load/nvd_cves_full_sample.jsonl.gz
+phase3.md
