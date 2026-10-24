@@ -415,7 +415,7 @@ Measured from the physical plan (`explain("formatted")`) of the fact build (03 c
 2. **Incremental silver** — process only batches newer than a watermark (the log table already tracks what is ingested); drops per-run cost from O(history) to O(daily change).
 3. **MERGE + record_hash change detection (already built)** — silver/gold rewrites stay proportional to the changed fraction, not table size.
 4. **Lakeflow Job orchestration** — scheduled runs with retries/alerts, no human-driven sessions.
-5. **OPTIMIZE / liquid clustering** on `gold_fact_vulnerability` and `gold_dim_cve` if the fact grows past millions of rows.
+5. **OPTIMIZE / liquid clustering** on `gold_fact_vulnerability` and `gold_dim_cve` if the fact grows past millions of rows. (Applied once on 2026-10-24: `gold_dim_cve` liquid-clustered on `published_date` and optimized — 3 → 2 files, cluster key set; `gold_fact_vulnerability` compacted — 2 → 1 file, 88,287 → 83,168 bytes. Row counts and keys verified identical before/after: layout-only change, MERGE loads unaffected.)
 
 ## 17. Remaining Phase 3 checklist
 
@@ -423,4 +423,4 @@ Measured from the physical plan (`explain("formatted")`) of the fact build (03 c
 - [ ] ER diagram / data dictionary artifact for submission (section 11 is the source content)
 - [ ] BI dashboard (Power BI / Tableau) on the six gold tables: ≥3 visuals + star-schema semantic model. The fact's measures (cvss, epss, is_in_kev, priority_rank) and role-playing date keys are dashboard-ready; dim_asset's department/criticality/exposure give categorical slicing.
 - [ ] Final PDF report: architecture diagram (section 1), decision log (section 13), Spark DAG screenshot + analysis (section 15), FinOps evaluation (section 16)
-- [ ] Optional: OPTIMIZE / liquid clustering on gold tables
+- [x] Optional: OPTIMIZE / liquid clustering on gold tables — done 2026-10-24 (see section 16; DESCRIBE DETAIL + OPTIMIZE metrics captured in `notebooks/zz_scratch_finops_dag`)
