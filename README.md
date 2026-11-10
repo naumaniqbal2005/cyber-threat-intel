@@ -1,6 +1,6 @@
 # Cyber Threat Intelligence Pipeline (Bronze + Silver + Gold)
 
-Phase 3 of our Spark/Databricks medallion pipeline. It ingests vulnerability data (NVD), exploit-likelihood scores (EPSS), known-exploited vulnerabilities (CISA KEV) and a synthetic asset inventory (Mockaroo) into **Bronze** Delta tables, merges the CVE feeds into a deduplicated **Silver** table, and builds a **Gold** star schema (5 dimensions + 1 fact) that maps the asset inventory to real CVE exposures via NVD CPE matching with version-range checks. Sections 11-17 are the Phase 3 record: gold data dictionary/ER diagram, asset-inventory design, decision log, an end-to-end incremental execution walk-through, Spark execution notes and FinOps inputs for the final report.
+Phase 3 of our Spark/Databricks medallion pipeline. It ingests vulnerability data (NVD), exploit-likelihood scores (EPSS), known-exploited vulnerabilities (CISA KEV) and a synthetic asset inventory (Mockaroo) into **Bronze** Delta tables, merges the CVE feeds into a deduplicated **Silver** table, and builds a **Gold** star schema (5 dimensions + 1 fact) that maps the asset inventory to real CVE exposures via NVD CPE matching with version-range checks. Sections 11-17 are the Phase 3 record: gold data dictionary/ER diagram, asset-inventory design, decision log, an end-to-end incremental execution walk-through, Spark execution notes and FinOps inputs for the final report. Sections 18-19 close Phase 3 out: the pipeline now runs itself daily via a Lakeflow Job (git pull → 01 → 02 → 03) and feeds a Power BI dashboard over the gold star schema.
 
 **Team:** Afras Shahnawaz, Rana Nauman Iqbal
 
@@ -22,7 +22,8 @@ Every load writes a row to pipeline_execution_logs.
 Bronze → Silver → Gold: 02_bronze_to_silver MERGEs bronze_{nvd,epss,kev} into silver_cve_unified.
 03_silver_to_gold MERGEs silver_cve_unified + bronze_assets into the Gold star schema (section 11):
 gold_dim_{asset, cve, date, severity, software} + gold_fact_vulnerability.
-Assets come from the Mockaroo API (section 12). Gold is the BI consumption layer (Power BI/Tableau).
+Assets come from the Mockaroo API (section 12). Gold is the BI consumption layer (Power BI — section 19).
+Daily orchestration (Lakeflow Job, section 18): 00c_git_pull (pull latest main from GitHub) → 01 → 02 → 03.
 ```
 
 All tables live in `<current catalog>.cyber_threat`.
@@ -33,10 +34,11 @@ All tables live in `<current catalog>.cyber_threat`.
 |---|---|
 | `notebooks/00_config_and_logging` | Table names, explicit source schemas, log table and `write_log()` helper. Pulled in by the other notebooks with `%run`. |
 | `notebooks/00b_reset_bronze` | Truncates the Bronze tables (and optionally the log table) for a clean re-run. |
-| `notebooks/01_landing_to_bronze` | Raw files to Bronze. Supports `full`, `incremental` and `backfill` loads and detects schema changes. |
+| `notebooks/00c_git_pull` | First task of the daily Lakeflow Job: pulls the workspace git clone to latest `main` and logs it (`Orchestration`). See section 18. |
+| `notebooks/01_landing_to_bronze` | Raw files to Bronze. Supports `full`, `incremental` and `backfill` loads and detects schema changes. On incremental runs it also fetches the daily 2-asset feed from the Mockaroo API (section 12). |
 | `notebooks/02_bronze_to_silver` | Dedup, flatten, join, then `MERGE` into the Silver table. Reads everything in Bronze, so it can also rebuild Silver from scratch. |
 | `notebooks/03_silver_to_gold` | Silver + bronze assets → Gold star schema (5 dims + 1 fact). Idempotent MERGE loads with `record_hash` change detection. See section 11. |
-| `notebooks/mockaroo_asset_dataset.csv` | The 20-row curated dataset behind the Mockaroo asset schema (coherent software/version/OS combos, stable asset ids). See section 12. |
+| `Power BI Dashboards/` | Screenshots of the finished Power BI dashboard over the gold star schema. See section 19. |
 | `phase3.md` | Phase 3 assignment requirements. |
 | `notebooks/Report/` | Working status reports (the Oct 8 one is historical — most of its gaps are now closed). |
 | `data/sample_raw/full_load/` | Full-load sample files for each source. |
@@ -156,6 +158,9 @@ Run `00b_reset_bronze`. It truncates the four Bronze tables and, if `reset_log =
 2. `02_bronze_to_silver`, Run all.
 3. `03_silver_to_gold`, Run all. The gold MERGEs only touch what actually changed — see section 14 for a real run.
 
+### Daily automated run (Lakeflow Job)
+Since 2026-11-10 the whole chain runs itself on a schedule — `00c_git_pull` (git pull) → `01` → `02` → `03`. See section 18; no manual steps are required.
+
 ### Specific batch (backfill)
 Loads one chosen incremental batch into Bronze at any time.
 1. `01_landing_to_bronze` with `load_type = incremental` and `batch_id` set to an existing folder name. An unknown batch id raises an error; a batch already logged as ingested is rejected.
@@ -215,7 +220,7 @@ One row per load of one source into one table.
 | Column | Meaning |
 |---|---|
 | run_id | UUID per source load |
-| layer | `Raw-to-Bronze` or `Bronze-to-Silver` |
+| layer | `Raw-to-Bronze`, `Bronze-to-Silver`, `Silver-to-Gold`, or `Orchestration` (git pull) |
 | load_type | `full`, `incremental`, `backfill`, or `merge` (Silver) |
 | source_param | Source file name (or `bronze_*` for Silver) |
 | target_table | Table written |
@@ -243,6 +248,7 @@ One row per load of one source into one table.
 | Incremental batch `2026-10-13_060009` (2026-10-24) | ≈1,988 inserted, ≈3,377 updated | ≈241,363 | 0 |
 | Gold initial build (2026-10-24) | fact 1,023 rows / 20 assets / 695 CVEs, 0 orphan FKs | n/a | 0 |
 | Gold refresh after the same batch (2026-10-24) | fact +8 inserted / 3 updated → 1,031 rows / 702 CVEs | n/a | 0 orphan FKs |
+| Lakeflow Job validation run, batch `2026-10-16_034138` (2026-11-10, section 18) | 1,015 inserted, 14,094 updated; gold fact → 1,051 rows / 714 CVEs | 242,378 | 0 |
 
 ## 10. Known limitations
 
@@ -346,10 +352,10 @@ Top exposures per asset: MySQL 8.0.0 = 372; Apache 2.4.49 / 2.4.50 / 2.4.58 = 88
 ## 12. Asset inventory (Mockaroo)
 
 - Source: Mockaroo schema `mockaroo.com/3093c720`, API `https://my.api.mockaroo.com/api/v1/assets` (X-API-Key header; key held by the team, not committed). CSV response, 14 columns.
-- The schema is **dataset-driven**: `asset_id`, `hostname`, `software_name`, `software_version`, `os_name`, `os_version` all pull from the same row of the curated dataset `notebooks/mockaroo_asset_dataset.csv` (20 rows), so combinations are always coherent (no `MySQL @ 9.6p1`) and identities are stable across fetches.
+- The schema is **dataset-driven**: `asset_id`, `hostname`, `software_name`, `software_version`, `os_name`, `os_version` all pull from the same row of the curated 20-row dataset hosted on mockaroo.com, so combinations are always coherent (no `MySQL @ 9.6p1`) and identities are stable across fetches. (A seed copy lived at `notebooks/mockaroo_asset_dataset.csv` until 2026-11-10; it is recoverable from git history if the dataset ever needs a rebuild.)
 - **Why asset_id comes from the dataset:** Mockaroo's row-number type restarts at 1 every fetch, so `AST-001` would become a different machine each day. Dataset ids like `AST-APACHE-01` are stable forever; a duplicate draw carries the same identity and collapses in gold.
 - Versions are pinned to vulnerable eras so they land inside NVD CPE ranges: Apache 2.4.49 / 2.4.50 (KEV path traversal CVE-2021-41773 / CVE-2021-42013) vs 2.4.58 as the patched twin; MySQL 5.7.9 / 8.0.0; Tomcat 9.0.0 / 8.5.0; Node.js 16.0.0 / 18.0.0; PostgreSQL 12.1 / 9.6.0; Kubernetes 1.24.0 / 1.28.0; MS SQL Server 2019; OpenVPN 2.4.0; Redis 6.0.0 / 5.0.0; Prometheus 2.30.0; Docker 20.10.0; Logstash 7.0.0.
-- A 100-row fetch yields ≤20 distinct assets (Mockaroo samples the 20-row dataset with replacement); duplicates collapse via gold's latest-wins + record_hash.
+- A 100-row fetch yields ≤20 distinct assets (Mockaroo samples the 20-row dataset with replacement); duplicates collapse via gold's latest-wins + record_hash. Since 2026-11-10 the schema is configured to return **2 rows per request**, so the daily job fetches exactly 2 assets per day — each an attribute refresh of one of the 20 stable identities.
 - On 2026-10-24 a 100-row fetch replaced `data/sample_raw/full_load/cortexa_assets_full_sample.csv` and `bronze_assets` was overwritten once (user-approved swap), then `gold_dim_asset` + `gold_fact_vulnerability` were rebuilt — MERGE cannot delete, so a full asset replacement needs an overwrite rebuild.
 - **Column-order gotcha (documented for reproducibility):** a schema-enforced Spark CSV read maps columns **by position, not name**. Mockaroo returns `ip_address` before `hostname` while `asset_schema` expects `hostname` first — unreordered, every column after `asset_id` shifts by one (caught when the fact build returned 0 rows). Any fetch must reorder columns to `asset_schema` order before writing.
 
@@ -414,13 +420,67 @@ Measured from the physical plan (`explain("formatted")`) of the fact build (03 c
 1. **EPSS diffing** — ingest only changed (cve, epss) pairs per cycle; cuts bronze growth ~99%.
 2. **Incremental silver** — process only batches newer than a watermark (the log table already tracks what is ingested); drops per-run cost from O(history) to O(daily change).
 3. **MERGE + record_hash change detection (already built)** — silver/gold rewrites stay proportional to the changed fraction, not table size.
-4. **Lakeflow Job orchestration** — scheduled runs with retries/alerts, no human-driven sessions.
+4. **Lakeflow Job orchestration** — scheduled runs with retries/alerts, no human-driven sessions. (Built and validated 2026-11-10 — see section 18.)
 5. **OPTIMIZE / liquid clustering** on `gold_fact_vulnerability` and `gold_dim_cve` if the fact grows past millions of rows. (Applied once on 2026-10-24: `gold_dim_cve` liquid-clustered on `published_date` and optimized — 3 → 2 files, cluster key set; `gold_fact_vulnerability` compacted — 2 → 1 file, 88,287 → 83,168 bytes. Row counts and keys verified identical before/after: layout-only change, MERGE loads unaffected.)
 
-## 17. Remaining Phase 3 checklist
+## 17. Phase 3 checklist — complete ✅
 
-- [ ] Lakeflow Job chaining 01 → 02 → 03 (the chain itself is proven — section 14; only the scheduling is missing)
-- [ ] ER diagram / data dictionary artifact for submission (section 11 is the source content)
-- [ ] BI dashboard (Power BI / Tableau) on the six gold tables: ≥3 visuals + star-schema semantic model. The fact's measures (cvss, epss, is_in_kev, priority_rank) and role-playing date keys are dashboard-ready; dim_asset's department/criticality/exposure give categorical slicing.
-- [ ] Final PDF report: architecture diagram (section 1), decision log (section 13), Spark DAG screenshot + analysis (section 15), FinOps evaluation (section 16)
-- [x] Optional: OPTIMIZE / liquid clustering on gold tables — done 2026-10-24 (see section 16; DESCRIBE DETAIL + OPTIMIZE metrics captured in `notebooks/zz_scratch_finops_dag`)
+- [x] Lakeflow Job chaining the full pipeline — built and validated 2026-11-10: `00c_git_pull` → `01` → `02` → `03`, daily 07:15 UTC, auto git pull of the GitHub Action's batches (section 18)
+- [x] ER diagram / data dictionary artifact — section 11.1 (data dictionary of all six gold tables) + section 11.2 (ER diagram)
+- [x] BI dashboard (Power BI) on the six gold tables — KPI cards, risk-quadrant scatter, hostname/OS risk rankings, act-now table, KEV timeline and a Pipeline Operations page, with measures verified against Spark ground truths (section 19)
+- [x] Final report: architecture diagram (section 1), decision log (section 13), Spark DAG analysis (section 15), FinOps evaluation (section 16) — compiled from this README
+- [x] Optional: OPTIMIZE / liquid clustering on gold tables — done 2026-10-24 (section 16; all OPTIMIZE/DESCRIBE DETAIL metrics are recorded there — the scratch notebook used for the measurement was removed 2026-11-10)
+
+---
+
+## 18. Automated daily orchestration (Lakeflow Job)
+
+The one structural gap left after section 14 is closed: since 2026-11-10 the pipeline runs itself.
+
+**Job:** `Cyber Threat Intel Daily Pipeline` (Lakeflow Job, serverless compute, linear task chain, max 1 concurrent run, failure email to the team).
+
+| # | Task | Notebook | Parameters |
+|---|---|---|---|
+| 1 | `git_pull` | `notebooks/00c_git_pull` | — |
+| 2 | `bronze` | `notebooks/01_landing_to_bronze` | `load_type=incremental`, `repo_path=/Workspace/Users/<you>/cyber-threat-intel`, `batch_id` empty (auto = oldest pending batch) |
+| 3 | `silver` | `notebooks/02_bronze_to_silver` | — |
+| 4 | `gold` | `notebooks/03_silver_to_gold` | — |
+
+- **Schedule:** daily at 07:15 UTC (`0 15 7 * * ?`), unpaused. The GitHub Action fetches at 00:00 UTC but only commits the batch at ~03:45–06:30 UTC (NVD/EPSS fetching takes hours), so the job runs after the batch is guaranteed to be on `main` — a 00:xx run would pull yesterday's state.
+- **How the auto git pull works:** `00c_git_pull` resolves the workspace git folder by path (each teammate's clone has a different repo id) and updates the checkout to the latest commit of `main` through the Repos API (a same-branch update is the documented pull). Remote commits only ever add `data/` files, so uncommitted local notebook edits never conflict. Every pull is logged to `pipeline_execution_logs` (`layer = 'Orchestration'`, `load_type = 'git_pull'`) without touching the batch watermark.
+- **Assets in the daily run:** incremental batches carry no asset file, so on every incremental run `01_landing_to_bronze` also fetches the 2-asset feed from the Mockaroo API — a driver-side request whose columns are mapped **by name** (the API's column order differs from `asset_schema`; see the gotcha in section 12), drift-detected, appended to `bronze_assets` and logged as source `mockaroo_assets_api`. Gold's latest-wins `dim_asset` + `record_hash` make the daily 2-row churn deterministic.
+
+**Validation run (2026-11-10, job run 786888018754119) — SUCCESS, ~4 min end-to-end, 13 log entries, every status `Success` or `Skipped`:**
+
+| Task | Result |
+|---|---|
+| git_pull | pulled `main` to 0fa48bc0 |
+| bronze | batch `2026-10-16_034138`: EPSS +389,824, KEV +1, NVD +7,499; assets CSV `Skipped`; Mockaroo API +2 assets |
+| silver | MERGE 1,015 inserted / 14,094 updated → 242,378 rows, 0 duplicates |
+| gold | dim_cve 1,015/2,062, dim_date +3, dim_asset 0 inserted / 2 updated (Mockaroo attribute churn), dim_software & dim_severity 0/0 no-ops, fact +20 inserted / 88 updated → 1,051 rows (714 CVEs, 20 assets, 0 orphan FKs) |
+
+The log table now carries `write_log` coverage across all four layers (Orchestration, Raw-to-Bronze, Bronze-to-Silver, Silver-to-Gold) and doubles as the job's run graph.
+
+## 19. Power BI dashboard (BI layer over Gold)
+
+Connected to the six gold tables through a Databricks SQL warehouse on the workspace's Unity Catalog. The semantic model mirrors the star schema: fact measures (`cvss_base_score`, `epss_score`, `epss_percentile`, `is_in_kev`, `priority_rank`) plus dimension attributes for slicing (`dim_asset`: department, criticality, exposure, os_name; `dim_date` role-playing date keys).
+
+Every measure was verified against Spark ground truths computed directly on the gold tables at build time — total risk score 6,848.1 across the then-1,031 exposures (11 KEV exposures, avg 6.64/exposure), top host `mysql-prod-02` at 1,936.5, top OS `RHEL` at 2,636.2 — and the visuals keep tracking the tables as the daily job loads more batches.
+
+Full-resolution screenshots are in `Power BI Dashboards/`.
+
+### Executive summary — KPI cards + risk-quadrant scatter (CVSS vs EPSS)
+
+![Executive summary](Power%20BI%20Dashboards/summary.png)
+
+### Remediation — act-now priorities + KEV timeline
+
+![Remediation](Power%20BI%20Dashboards/remidiation.png)
+
+### Assets & software — hostname / OS risk rankings
+
+![Assets and software risk rankings](Power%20BI%20Dashboards/assets_and_softwares.png)
+
+### Pipeline operations — run history from `pipeline_execution_logs`
+
+![Pipeline health](Power%20BI%20Dashboards/pipeline_health.png)
