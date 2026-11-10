@@ -272,23 +272,9 @@ One row per load of one source into one table.
 
 ### 10.2 ER diagram
 
-```
-                        ┌──────────────────┐       ┌───────────────────┐
-                        │  gold_dim_date   │       │ gold_dim_severity │
-                        │  PK date_key     │       │ PK severity_key   │
-                        └────┬────────┬────┘       └─────────┬─────────┘
-         published_date_key  │        │  kev_date_key      severity_key
-                              └────────┴────────────┬──┘
-                                                   │
-  ┌──────────────────┐    ┌───────────────────────▼──┐    ┌──────────────────┐
-  │  gold_dim_asset   │    │  gold_fact_vulnerability │    │  gold_dim_cve    │
-  │  PK asset_id      ├───►│  PK (asset_id, cve_key)  │◄───┤  PK cve_key      │
-  └──────────────────┘    └────────────┬─────────────┘    └──────────────────┘
-  ┌──────────────────┐                 │ software_key
-  │ gold_dim_software │─────────────────┘
-  │ PK software_key   │
-  └──────────────────┘
-```
+![Gold star schema ER diagram](er_diagram.png)
+
+Five dimensions around one fact; `gold_dim_date` serves two FK roles (published + KEV dates) — a role-playing dimension.
 
 ### 10.3 How the fact is derived (pipeline-true relationships)
 
